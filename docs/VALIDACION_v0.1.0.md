@@ -88,3 +88,7 @@ Conservar una copia independiente del almacén de subida y de su contraseña: DP
 copia portátil. Quedan gráficos y capturas de tienda, pruebas en dispositivos reales/16 KiB,
 configuración de Play App Signing y las etapas de prueba/aprobación que indique Play Console.
 La disponibilidad del enlace Ko-fi no prueba pagos ni aceptación por Google.
+
+La primera ejecución de CI falló antes de compilar: setup-android intentó instalar el paquete
+obsoleto tools. Se fijó packages: platform-tools y se evitó duplicar trabajos al subir etiquetas.
+Esta corrección afecta únicamente a CI, sin cambios en las fuentes de la app ni en los binarios.

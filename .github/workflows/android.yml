@@ -1,6 +1,7 @@
 name: Android
 on:
   push:
+    branches: ["**"]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -17,6 +18,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - run: chmod +x gradlew
       - run: ./gradlew assembleDebug assembleRelease bundleRelease testDebugUnitTest lintDebug assembleDebugAndroidTest --no-daemon --console=plain
@@ -38,6 +42,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Enable KVM
         run: |
