@@ -33,6 +33,7 @@ jobs:
             app/build/reports/
   native-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,17 +58,18 @@ jobs:
           api-level: 36
           target: default
           arch: x86_64
-          profile: pixel_c
+          cores: 4
+          emulator-boot-timeout: 300
           ram-size: 2048M
           disable-animations: true
           # The gesture suite uses fixed pixel coordinates and a fully visible tablet toolbar.
           # The phone toolbar is covered separately by compactToolbarKeepsTitleToolsAndDocumentActionsOnOneLine.
           script: |
-            adb shell wm size 1280x800
-            adb shell wm density 160
-            adb shell wm size
-            adb shell wm density
-            ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
+            timeout 30s adb shell wm size 1280x800
+            timeout 30s adb shell wm density 160
+            timeout 30s adb shell wm size
+            timeout 30s adb shell wm density
+            timeout 10m ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
       - uses: actions/upload-artifact@v4
         if: always()
         with:

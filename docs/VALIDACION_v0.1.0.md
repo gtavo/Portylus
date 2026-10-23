@@ -100,3 +100,8 @@ sin alterar aserciones ni código de la app. La barra móvil conserva su prueba 
 El ZIP completo publicado y su etiqueta se mantienen inmutables; estos ajustes posteriores
 afectan solo a CI y a sus evidencias en main. Las fuentes de app/configuración/compilación
 que producen los binarios coinciden byte a byte con las del archivo público.
+
+El siguiente trabajo de emulación remoto excedió su duración habitual y se interrumpió para
+investigarlo. La configuración posterior usa el AVD genérico que arrancó en la primera
+prueba, con viewport de tablet explícito y límites de arranque, comandos adb y Gradle.
+Estos controles evitan esperar indefinidamente si el entorno remoto deja de responder.
