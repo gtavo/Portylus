@@ -1,0 +1,14 @@
+Portylus — lector y anotador PDF
+Desarrollada por gtavo.apps.
+Copyright (C) 2026 Gustavo Miguel Mínguez Marín y colaboradores de Portylus.
+
+Abre, lee, anota y guarda tus PDF en Android. Sin cuentas, anuncios ni telemetría. Los documentos y preferencias se procesan en tu dispositivo; no se envían a servidores de Portylus.
+
+Portylus es software libre bajo GNU Affero General Public License, versión 3 o posterior. Puedes copiarla, modificarla y redistribuirla según la licencia. Se distribuye sin garantía; consulta el texto íntegro y los avisos de terceros en Licencias.
+
+Motor PDF: MuPDF / fitz 1.28.5, de Artifex Software, Inc. y colaboradores, bajo AGPL-3.0-or-later. Portylus es un proyecto independiente, no una aplicación oficial de Artifex.
+
+Todas las funciones son gratuitas. El apoyo mediante Ko-fi es voluntario y no concede funciones, contenido, prioridad ni ventajas.
+
+Web: https://gtavoapps.com/portylus/
+Contacto: gtavo.apps@gmail.com

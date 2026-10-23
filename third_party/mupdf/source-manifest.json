@@ -1,0 +1,25 @@
+{
+  "version": "1.28.5",
+  "coordinate": "com.artifex.mupdf:fitz:1.28.5",
+  "license": "AGPL-3.0-or-later",
+  "wrapperCommit": "2f0328165b08fd9c91720d95702cbef3a3d35706",
+  "engineCommit": "8ad45e92f0935d3d87f1db3f873086472a5e1b24",
+  "aar": {
+    "sha256": "e6887a242882cdd2dce062430bb46b6727513e3eb94e222255cc1a37db7a7d8e",
+    "url": "https://maven.ghostscript.com/com/artifex/mupdf/fitz/1.28.5/fitz-1.28.5.aar"
+  },
+  "archives": [
+    {
+      "file": "mupdf-1.28.5-source.tar.gz",
+      "sha256": "98a5c10cda20c3992cdf76ff6b2a1149c32bd79cc796d3f703230b1185b7e934",
+      "url": "https://casper.mupdf.com/downloads/archive/mupdf-1.28.5-source.tar.gz"
+    },
+    {
+      "file": "mupdf-android-fitz-1.28.5.zip",
+      "sha256": "c13f04d22c32aad18d5fd2bdada6cf57c9751eabe3e8931e1e46555c2905ecb6",
+      "url": "https://api.github.com/repos/ArtifexSoftware/mupdf-android-fitz/zipball/2f0328165b08fd9c91720d95702cbef3a3d35706"
+    }
+  ],
+  "verifiedOn": "2026-10-21",
+  "nativeSourceRebuildVerified": false
+}

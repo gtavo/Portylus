@@ -1,0 +1,56 @@
+%PDF-1.7
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 400] /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> /Contents 4 0 R /Annots [9 0 R] >>
+endobj
+4 0 obj
+<< /Length 88 >>
+stream
+BT /F1 14 Tf 30 340 Td (Original text preserved.) Tj ET
+q 40 0 0 40 30 240 cm /Im1 Do Q
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /XObject /Subtype /Image /Width 2 /Height 2 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /ASCIIHexDecode /Length 25 >>
+stream
+FF000000FF000000FFFFFFFF>
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 300] /CropBox [10 10 390 290] /Rotate 90 /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 86 >>
+stream
+BT /F1 14 Tf 30 240 Td (Original rotated page.) Tj ET
+q 40 0 0 40 30 150 cm /Im1 Do Q
+endstream
+endobj
+9 0 obj
+<< /Type /Annot /Subtype /Text /Rect [250 250 270 270] /Contents (Original note) /NM (foreign-original) >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000289 00000 n 
+0000000426 00000 n 
+0000000496 00000 n 
+0000000688 00000 n 
+0000000876 00000 n 
+0000001011 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+1133
+%%EOF

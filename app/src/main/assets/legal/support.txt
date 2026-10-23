@@ -1,0 +1,14 @@
+Apoyar Portylus en Ko-fi
+
+Si Portylus te resulta útil, puedes apoyar su desarrollo y mantenimiento mediante la página de gtavo.apps en Ko-fi:
+https://ko-fi.com/gtavoapps
+
+La aportación es voluntaria. Todas las funciones están disponibles para todos: aportar no desbloquea herramientas, contenido, insignias, prioridad ni otras ventajas.
+
+El botón Abrir Ko-fi abre el navegador u otra aplicación externa. No se incorpora un SDK de pagos, no se envían tus PDF ni preferencias y Portylus no recibe confirmaciones de pago ni identifica a quienes aportan.
+
+Ko-fi y los proveedores conectados, PayPal y Stripe, gestionan los pagos bajo sus condiciones. Pueden facilitar al titular tu nombre visible, correo, mensaje y datos de la operación para gestionar la aportación y las obligaciones aplicables. Los datos financieros se gestionan en los servicios de pago y no se reciben en Portylus.
+
+Las consultas por correo se conservan mientras estén abiertas y, como máximo, 3 meses después de cerrarlas, salvo los datos estrictamente necesarios para obligaciones legales o reclamaciones. Los justificantes de aportaciones y documentos fiscales tienen conservación separada según sus obligaciones aplicables.
+
+Consulta el texto completo en Privacidad. No se promete deducibilidad fiscal de las aportaciones.

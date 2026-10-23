@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Fixture provider exists only in the separately installed test APK. -->
+        <provider android:name="com.gtavoapps.portylus.FixturePdfProvider"
+            android:authorities="com.gtavoapps.portylus.test.fixture" android:exported="true"
+            android:grantUriPermissions="true" />
+        <provider android:name="com.gtavoapps.portylus.FixtureFolderProvider"
+            android:authorities="com.gtavoapps.portylus.test.folders" android:exported="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            android:grantUriPermissions="true">
+            <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
+        </provider>
+        <activity android:name="com.gtavoapps.portylus.FixtureFolderGrantActivity"
+            android:exported="true" android:theme="@android:style/Theme.NoDisplay" />
+    </application>
+</manifest>

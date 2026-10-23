@@ -1,0 +1,32 @@
+{
+  "brand": {
+    "name": "Portylus",
+    "author": "gtavo.apps",
+    "concept": "P, documento y lápiz; lectura y anotación manual"
+  },
+  "colors": {
+    "primaryBlue": "#087CFF",
+    "electricBlue": "#005BFF",
+    "cyan": "#20C9FF",
+    "navy": "#071A33",
+    "navy2": "#0B2748",
+    "background": "#061426",
+    "white": "#F7FAFF",
+    "secondary": "#AFC2DB",
+    "amber": "#FFC857",
+    "danger": "#FF5A6F"
+  },
+  "ui": {
+    "radiusSm": 10,
+    "radiusMd": 18,
+    "radiusLg": 24
+  },
+  "typography": {
+    "android": "System sans-serif",
+    "familyRecommendation": [
+      "Ubuntu",
+      "Inter",
+      "System UI"
+    ]
+  }
+}
