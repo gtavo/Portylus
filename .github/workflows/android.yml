@@ -57,8 +57,17 @@ jobs:
           api-level: 36
           target: default
           arch: x86_64
+          profile: pixel_c
+          ram-size: 2048M
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
+          # The gesture suite uses fixed pixel coordinates and a fully visible tablet toolbar.
+          # The phone toolbar is covered separately by compactToolbarKeepsTitleToolsAndDocumentActionsOnOneLine.
+          script: |
+            adb shell wm size 1280x800
+            adb shell wm density 160
+            adb shell wm size
+            adb shell wm density
+            ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
       - uses: actions/upload-artifact@v4
         if: always()
         with:

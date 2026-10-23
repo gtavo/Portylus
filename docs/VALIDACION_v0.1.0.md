@@ -92,3 +92,11 @@ La disponibilidad del enlace Ko-fi no prueba pagos ni aceptación por Google.
 La primera ejecución de CI falló antes de compilar: setup-android intentó instalar el paquete
 obsoleto tools. Se fijó packages: platform-tools y se evitó duplicar trabajos al subir etiquetas.
 Esta corrección afecta únicamente a CI, sin cambios en las fuentes de la app ni en los binarios.
+
+CI remoto compiló correctamente y superó JVM/Lint. La suite de gestos encontró 18 fallos en el
+AVD genérico, incluyendo controles fuera de la franja visible y muestras de píxel distintas.
+Se fijó pixel_c con resolución 1280×800 y densidad 160 para repetir la suite de coordenadas
+sin alterar aserciones ni código de la app. La barra móvil conserva su prueba específica.
+El ZIP completo publicado y su etiqueta se mantienen inmutables; estos ajustes posteriores
+afectan solo a CI y a sus evidencias en main. Las fuentes de app/configuración/compilación
+que producen los binarios coinciden byte a byte con las del archivo público.
