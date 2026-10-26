@@ -175,13 +175,17 @@ class PenInputTest {
         Reader().use { reader ->
             val positions = com.gtavoapps.portylus.preferences.ReadingPositions(instrumentation.targetContext)
             val key = positions.key(Uri.fromFile(reader.source))
+            val oldView = reader.view
             main {
                 reader.model.recordPage(requireNotNull(reader.model.document), 2)
                 reader.model.closePdf()
                 reader.model.openPdf(Uri.fromFile(reader.source))
             }
+            // The model can publish the reopened document before Compose replaces the old view.
             await { reader.model.document?.lastPage == 2 && !reader.model.opening &&
-                findReader(reader.activity.window.decorView)?.isDocumentReady == true }
+                findReader(reader.activity.window.decorView)?.let {
+                    it !== oldView && it.isDocumentReady && it.width > 0 && it.height > 0
+                } == true }
             assertEquals(1, main { reader.view.pageAt(100f, 150f)!!.first.page })
             assertEquals(2, positions.read(key, 2))
             assertEquals(1, positions.read("new-file-${System.nanoTime()}", 2))
