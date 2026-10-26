@@ -1,5 +1,6 @@
 package com.gtavoapps.portylus.ui
 
+import com.gtavoapps.portylus.R
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
@@ -45,6 +46,20 @@ data class OpenPdf(var name: String, val file: File, val session: PdfSession, va
 enum class AfterSave { STAY, CLOSE, OPEN_PENDING }
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
+    private val strings = application
+    private val readerPreferences = com.gtavoapps.portylus.preferences.ReaderPreferences(application)
+    var fingerWriting by mutableStateOf(readerPreferences.fingerWriting); private set
+    var keepAwake by mutableStateOf(readerPreferences.keepAwake); private set
+
+    fun updateFingerWriting(value: Boolean) {
+        readerPreferences.setFingerWriting(value)
+        fingerWriting = value
+    }
+
+    fun updateKeepAwake(value: Boolean) {
+        readerPreferences.setKeepAwake(value)
+        keepAwake = value
+    }
     private val resolver = application.contentResolver
     private val storage = DocumentStorage(resolver)
     private val preferences = FolderPreferences(application)
@@ -133,7 +148,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             try { inkStyles = withContext(Dispatchers.IO) { inkPreferences.read() } }
             catch (error: Exception) {
                 if (error is CancellationException) throw error
-                message = "No se han podido recuperar los estilos."
+                message = strings.getString(R.string.styles_load_error)
             } finally { stylesReady = true }
         }
         viewModelScope.launch {
@@ -147,13 +162,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     recoveryDirectory.listFiles()?.filter { (it.name.startsWith("portylus-backup-") || it.name.startsWith("pdfiz-backup-")) && it.length() > 0 }
                         ?.maxByOrNull { it.lastModified() }
                 }
-                if (recoveryFile != null) saveFailure = "Hay una copia del archivo anterior de un guardado interrumpido. Puedes recuperarla en otro destino."
+                if (recoveryFile != null) saveFailure = strings.getString(R.string.recovery_available)
                 settings = withContext(Dispatchers.IO) { preferences.read() }
                 // A missing last location means the user chose the library, not the first grant.
                 settings.lastLocation?.let(::loadFolder) ?: run { loading = false }
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                message = "No se han podido recuperar las preferencias."
+                message = strings.getString(R.string.preferences_load_error)
                 loading = false
             } finally { initialized.complete(Unit) }
         }
@@ -170,7 +185,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 onSaved()
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                message = "No se ha podido guardar el estilo. Inténtalo de nuevo."
+                message = strings.getString(R.string.style_save_error)
             } finally { savingStyle = false }
         }
     }
@@ -187,7 +202,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 navigate(root)
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                message = "No se ha podido conservar el acceso a esa carpeta."
+                message = strings.getString(R.string.folder_permission_error)
             }
         }
     }
@@ -216,7 +231,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 updateSettings { it.copy(lastLocation = target) }
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                listingError = "No se puede acceder a esta carpeta. Autoriza una ubicación o vuelve a intentarlo."
+                listingError = strings.getString(R.string.folder_access_error)
             } finally { if (listingRevision == revision) loading = false }
         }
     }
@@ -312,7 +327,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (intent.action != Intent.ACTION_VIEW) return
         val uri = intent.data ?: return
         if (uri.scheme != "content" && uri.scheme != "file") {
-            reportError("No se puede leer esta dirección de PDF."); return
+            reportError(strings.getString(R.string.pdf_address_error)); return
         }
         // Many senders grant only temporary access. Copy immediately; never require a durable grant.
         if (intent.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0 &&
@@ -370,7 +385,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             } catch (error: Exception) {
                 opened?.let { closeDocument(it) }
                 if (error is CancellationException) throw error
-                message = error.message ?: "No se puede abrir este PDF."
+                message = error.message?.let(strings::localizedError) ?: strings.getString(R.string.pdf_open_error)
             } finally { opening = false }
         }
     }
@@ -409,7 +424,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     prepared = output
                     PdfSession.open(opened.file).use { native ->
                         if (native.canAnnotate) native.replaceInk(strokes)
-                        else check(strokes.isEmpty()) { "El PDF no permite anotaciones." }
+                        else check(strokes.isEmpty()) { strings.getString(R.string.no_annotations) }
                         native.exportTo(output)
                     }
                     PdfSession.open(output).use { verified ->
@@ -439,7 +454,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 positions.write(opened.positionKey, opened.lastPage)
                 opened.pen.markSaved(strokes)
                 saving = false
-                message = "PDF guardado."
+                message = strings.getString(R.string.pdf_saved)
                 when (after) {
                     AfterSave.STAY -> Unit
                     AfterSave.CLOSE -> closePdf()
@@ -448,8 +463,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
                 recoveryFile = (error as? DocumentWriteFailure)?.recovery ?: recoveryFile
-                saveFailure = if (error is DocumentWriteFailure) error.message
-                    else "No se ha podido preparar o guardar el PDF. Tus cambios siguen disponibles. Prueba Guardar como."
+                saveFailure = if (error is DocumentWriteFailure) error.message?.let(strings::localizedError)
+                    else strings.getString(R.string.save_error)
             } finally {
                 prepared?.delete()
                 saving = false
@@ -469,10 +484,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 original.delete()
                 recoveryFile = null
                 saveFailure = null
-                message = "Copia del archivo anterior recuperada."
+                message = strings.getString(R.string.copy_recovered)
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                saveFailure = "No se ha podido recuperar la copia en ese destino. La copia anterior se conserva."
+                saveFailure = strings.getString(R.string.recovery_error)
             } finally { saving = false }
         }
     }
@@ -490,7 +505,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 true
             } catch (error: Exception) {
                 if (error is CancellationException) throw error
-                message = "No se ha podido guardar la configuración."
+                message = strings.getString(R.string.settings_save_error)
                 false
             }
         }

@@ -1,48 +1,32 @@
-# Ficha de Google Play — borrador de Portylus
+# Ficha de Google Play — Portylus 0.1.1 (ES)
 
-Nombre: **Portylus**
+Estado: preparada localmente; publicación y enlaces de prueba pendientes.
 
-Descripción breve (menos de 80 caracteres):
+Nombre: Portylus
 
-Lee, anota y guarda tus PDF con lápiz y resaltador, sin cuentas ni anuncios.
+## Descripción breve
 
-Descripción completa propuesta:
+Lee, escribe con el dedo y anota tus PDF sin cuentas ni anuncios.
 
-Portylus te ayuda a leer y anotar tus documentos PDF desde Android.
+## Descripción completa
 
-Organiza el acceso a tus carpetas con el selector de archivos de Android y crea marcadores
-para volver a tus ubicaciones habituales. Abre también PDF desde otras aplicaciones.
+Portylus es un lector y anotador PDF gratuito para Android.
 
-Escribe con un lápiz compatible, resalta con el dedo y configura colores y grosores para
-tus herramientas. Borra trazos o partes de ellos, deshaz y rehace mientras trabajas y
-selecciona texto para copiarlo. La aplicación recuerda la última página de cada documento.
+Abre tus documentos con el selector de Android o desde otras aplicaciones. Añade carpetas, crea marcadores y vuelve a la última página de cada PDF.
 
-Tú decides cuándo guardar. Guarda las anotaciones dentro del PDF o utiliza Guardar como
-para elegir otro destino. Portylus avisa si sales con cambios pendientes.
+Escribe a mano con el dedo o con un lápiz compatible, resalta, borra partes o trazos completos, deshaz y rehace. Guarda tres estilos de color y grosor para cada herramienta. También puedes seleccionar y copiar el texto que ya exista en el PDF.
 
-Sin cuentas, anuncios ni telemetría. Portylus procesa tus documentos en el dispositivo;
-si eliges una carpeta de un proveedor de nube, ese proveedor gestiona su sincronización.
+La vista vertical del móvil mantiene visibles las herramientas. En Ajustes puedes elegir español, inglés o francés, permitir escritura con el dedo y mantener la pantalla encendida. Con un dibujo activo, dos dedos permiten desplazarte y ampliar.
 
-Requiere Android 13 o posterior. Para escribir a mano necesitas un lápiz que Android
-reconozca como stylus. La selección de texto necesita un PDF con texto; no incluye OCR.
-Los PDF con contraseña todavía no se admiten.
+Tú decides cuándo guardar. Las anotaciones se guardan dentro del PDF y Guardar como permite elegir otro destino. Portylus avisa si sales con cambios pendientes.
 
-Todas las funciones se ofrecen gratuitamente. El apoyo económico al proyecto es voluntario
-y no concede ventajas ni contenido adicional.
+Sin cuentas, anuncios ni telemetría. Los PDF se procesan en tu dispositivo y la app funciona sin conexión. Si eliges un proveedor de nube, ese proveedor gestiona la sincronización de tus archivos.
 
-Portylus es software libre bajo AGPL-3.0-or-later y utiliza el motor MuPDF de Artifex.
-Fuentes completas de esta versión: https://github.com/gtavo/Portylus/releases/download/v0.1.0/Portylus-v0.1.0-source.zip.
-Privacidad: https://gtavoapps.com/portylus/privacidad/. Contacto: gtavo.apps@gmail.com.
+Requiere Android 13 o posterior. La selección de texto necesita un PDF con texto; no incluye OCR. Todavía no se admiten PDF con contraseña ni escritura de texto mediante teclado.
 
-## Recursos por preparar
+Todas las funciones son gratuitas. El apoyo al proyecto mediante Ko-fi es voluntario y no desbloquea contenido ni ventajas.
 
-- Icono 512×512, PNG de 32 bits, hasta 1024 KB, símbolo P sobre fondo navy.
-- Gráfico de funciones 1024×500 (JPEG o PNG de 24 bits, sin alfa).
-- Al menos dos capturas reales. Añadir las de tablet si se distribuye/promociona para tablet.
-- Usar PDF ficticios sin datos de alumnos, capturas de Portylus y la versión final.
-
-La ficha sigue siendo un borrador hasta completar gráficos, capturas y revisión final. La app
-ya está creada en Play según el usuario; no se ha comprobado su registro como marca.
-
-Referencias: [texto de ficha](https://support.google.com/googleplay/android-developer/answer/9859152?hl=es),
-[recursos gráficos](https://support.google.com/googleplay/android-developer/answer/9866151?hl=es).
+Software libre bajo AGPL-3.0-or-later. Motor PDF: MuPDF de Artifex.
+Fuentes completas: https://github.com/gtavo/Portylus/releases/download/v0.1.1/Portylus-v0.1.1-source.zip.
+Privacidad: https://gtavoapps.com/portylus/privacidad/.
+Contacto: gtavo.apps@gmail.com.

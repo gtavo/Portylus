@@ -1,5 +1,6 @@
 package com.gtavoapps.portylus.pdf
 
+import com.gtavoapps.portylus.R
 import android.content.Context
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -37,6 +38,9 @@ import com.gtavoapps.portylus.annotations.InkEraser
 @SuppressLint("ViewConstructor")
 class PdfReaderView(context: Context, private val session: PdfSession, private val pen: PenSession,
     initialPage: Int = 1) : View(context) {
+    private val strings = context
+    var fingerWriting = false
+        set(value) { if (field != value) cancelStroke(); field = value }
     private var pendingPage: Int? = initialPage.coerceIn(1, session.pageCount) - 1
     var editingLocked = false
         set(value) { if (value && !field) { cancelStroke(); scroller.forceFinished(true) }; field = value }
@@ -172,7 +176,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         override fun onSingleTapUp(e: MotionEvent): Boolean { performClick(); return true }
     })
 
-    init { contentDescription = "Documento PDF. Desliza para leer y usa dos dedos para ampliar." }
+    init { contentDescription = strings.getString(R.string.reader_description) }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -190,14 +194,14 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
                     textSelection = result.takeIf { it.text.isNotEmpty() }
                     if (request.complete) {
                         onTextSelectionChanged(result.text)
-                        if (result.text.isEmpty()) onError("No hay texto seleccionable en ese punto.")
+                        if (result.text.isEmpty()) onError(strings.getString(R.string.no_selectable_text))
                     }
                     invalidate()
                 } catch (error: kotlinx.coroutines.CancellationException) { throw error }
                 catch (_: Exception) {
                     if (request.revision == selectionRevision) {
                         clearTextSelection()
-                        onError("No se puede seleccionar o copiar texto en este PDF.")
+                        onError(strings.getString(R.string.selection_error))
                     }
                 }
             }
@@ -207,7 +211,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
                 sizes = withContext(Dispatchers.IO) { (0 until session.pageCount).map(session::pageSize) }
                 layoutPages(); invalidate()
             } catch (error: kotlinx.coroutines.CancellationException) { throw error }
-            catch (_: Exception) { onError("No se pueden renderizar las páginas de este PDF.") }
+            catch (_: Exception) { onError(strings.getString(R.string.render_error)) }
         }
     }
     override fun onDetachedFromWindow() {
@@ -258,7 +262,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         canvas.drawColor(Color.rgb(6, 20, 38))
         if (sizes.isEmpty()) {
             paint.color = Color.LTGRAY; paint.textSize = 16 * resources.displayMetrics.density
-            canvas.drawText("Abriendo…", gap * 2, gap * 4, paint)
+            canvas.drawText(strings.getString(R.string.opening), gap * 2, gap * 4, paint)
             return
         }
         var bestPage = 0
@@ -514,7 +518,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
                 val bitmap = withContext(Dispatchers.IO) { session.render(index, renderWidth) }
                 cache.put(index, RenderedPage(renderWidth, bitmap)); invalidate()
             } catch (error: kotlinx.coroutines.CancellationException) { throw error }
-            catch (_: Exception) { onError("No se ha podido mostrar una página.") }
+            catch (_: Exception) { onError(strings.getString(R.string.page_error)) }
         }
         jobs[index] = renderJob
         renderJob.invokeOnCompletion { if (jobs[index] === renderJob) jobs.remove(index) }
@@ -573,6 +577,9 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
             if (eraserEnabled) beginStroke(event, changed, erasing = true)
             else if (textSelectionEnabled) beginStroke(event, changed, selecting = true)
             else if (highlighterEnabled) beginStroke(event, changed, AnnotationKind.HIGHLIGHTER)
+            else if (com.gtavoapps.portylus.input.InputPolicy.action(com.gtavoapps.portylus.input.Tool.FINGER,
+                com.gtavoapps.portylus.input.ToolState(penEnabled, highlighterEnabled, fingerWriting), fingers, false)
+                == com.gtavoapps.portylus.input.InputAction.PEN) beginStroke(event, changed, AnnotationKind.PEN)
         }
         if (activePointer != MotionEvent.INVALID_POINTER_ID) {
             val index = event.findPointerIndex(activePointer)
@@ -584,7 +591,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
             } else if (action == MotionEvent.ACTION_MOVE) appendSamples(event, index)
         }
         if (!navigationBlocked && !hasNonFinger && activePointer == MotionEvent.INVALID_POINTER_ID &&
-            (fingerNavigation || (!highlighterEnabled && !textSelectionEnabled && !eraserEnabled))) {
+            (fingerNavigation || (!highlighterEnabled && !textSelectionEnabled && !eraserEnabled && !(penEnabled && fingerWriting)))) {
             if (action == MotionEvent.ACTION_DOWN) navigationStarted = true
             if (navigationStarted) {
                 scaleDetector.onTouchEvent(event)

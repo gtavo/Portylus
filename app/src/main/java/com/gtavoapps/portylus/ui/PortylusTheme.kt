@@ -31,12 +31,14 @@ private val PortylusColors = darkColorScheme(
         small = RoundedCornerShape(10.dp), medium = RoundedCornerShape(18.dp),
         large = RoundedCornerShape(24.dp)), content = content)
 }
-@Composable fun PortylusBrand() {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Image(painterResource(R.drawable.portylus_symbol), contentDescription = null, modifier = Modifier.size(44.dp))
+@Composable fun PortylusBrand(compact: Boolean = false) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp)) {
+        Image(painterResource(R.drawable.portylus_symbol), contentDescription = null, modifier = Modifier.size(if (compact) 26.dp else 36.dp))
         Column {
-            Text("Portylus", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            Text("gtavo.apps", fontSize = 10.sp, color = MaterialTheme.colorScheme.secondary)
+            Text("Portylus", fontSize = if (compact) 18.sp else 22.sp, maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            if (!compact) Text("gtavo.apps", fontSize = 10.sp, color = MaterialTheme.colorScheme.secondary)
         }
     }
 }

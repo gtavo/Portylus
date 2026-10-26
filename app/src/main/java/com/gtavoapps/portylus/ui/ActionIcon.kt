@@ -94,6 +94,14 @@ import androidx.compose.ui.unit.dp
                 }
                 drawPath(path,color,style=line)
             }
+            "open" -> {
+                val path = Path().apply {
+                    moveTo(13f*u,3f*u);lineTo(5f*u,3f*u);lineTo(5f*u,21f*u);lineTo(19f*u,21f*u);lineTo(19f*u,12f*u)
+                    moveTo(13f*u,3f*u);lineTo(13f*u,9f*u);lineTo(19f*u,9f*u);lineTo(13f*u,3f*u)
+                    moveTo(10f*u,15f*u);lineTo(22f*u,3f*u);moveTo(16f*u,3f*u);lineTo(22f*u,3f*u);lineTo(22f*u,9f*u)
+                }
+                drawPath(path,color,style=line)
+            }
             "folder" -> {
                 val path = Path().apply {
                     moveTo(3f*u,6f*u); lineTo(10f*u,6f*u); lineTo(12f*u,9f*u)

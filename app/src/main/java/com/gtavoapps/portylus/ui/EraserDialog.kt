@@ -1,5 +1,6 @@
 package com.gtavoapps.portylus.ui
 
+import com.gtavoapps.portylus.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
@@ -12,18 +13,19 @@ import com.gtavoapps.portylus.annotations.EraserOptions
 
 @Composable
 fun EraserDialog(options: EraserOptions, onChange: (EraserOptions) -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Goma") }, text = {
+    val strings = androidx.compose.ui.platform.LocalContext.current
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(strings.getString(R.string.eraser)) }, text = {
         Column {
-            Text("Tipo de borrado")
+            Text(strings.getString(R.string.erase_type))
             FilterChip(selected = options.mode == EraserMode.PARTIAL,
-                onClick = { onChange(options.copy(mode = EraserMode.PARTIAL)) }, label = { Text("Parcial") })
+                onClick = { onChange(options.copy(mode = EraserMode.PARTIAL)) }, label = { Text(strings.getString(R.string.partial)) })
             FilterChip(selected = options.mode == EraserMode.WHOLE,
-                onClick = { onChange(options.copy(mode = EraserMode.WHOLE)) }, label = { Text("Trazo completo") })
-            Text("Borrar solo")
+                onClick = { onChange(options.copy(mode = EraserMode.WHOLE)) }, label = { Text(strings.getString(R.string.whole_stroke)) })
+            Text(strings.getString(R.string.erase_only))
             FilterChip(selected = options.filter == AnnotationKind.PEN,
-                onClick = { onChange(options.copy(filter = AnnotationKind.PEN)) }, label = { Text("Escritura") })
+                onClick = { onChange(options.copy(filter = AnnotationKind.PEN)) }, label = { Text(strings.getString(R.string.handwriting)) })
             FilterChip(selected = options.filter == AnnotationKind.HIGHLIGHTER,
-                onClick = { onChange(options.copy(filter = AnnotationKind.HIGHLIGHTER)) }, label = { Text("Resaltados") })
+                onClick = { onChange(options.copy(filter = AnnotationKind.HIGHLIGHTER)) }, label = { Text(strings.getString(R.string.highlights)) })
         }
-    }, confirmButton = { TextButton(onClick = onDismiss) { Text("Cerrar") } })
+    }, confirmButton = { TextButton(onClick = onDismiss) { Text(strings.getString(R.string.close)) } })
 }

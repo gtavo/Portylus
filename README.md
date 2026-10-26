@@ -21,13 +21,13 @@ Objetivo: **abrir, leer, anotar y guardar**. La especificación original está e
 - Los marcadores existentes se conservan en Bookmarks, sin migración destructiva.
 - Última carpeta, orden por nombre/fecha y regreso desde el documento.
 - Lectura integrada con desplazamiento vertical, zoom y número de página.
-- Barra del lector en una sola fila: nombre con puntos suspensivos a la izquierda, iconos de herramientas y estilos en el centro, y Deshacer/Rehacer/Guardar a la derecha.
+- Barra del lector adaptativa: en móvil, una fila compacta para nombre y acciones, y otra para las seis herramientas principales sin desplazamiento horizontal. En tablet mantiene una sola fila.
 - Iconos con estado activo en cian, nombres accesibles y ayuda al mantener pulsado. El título completo también se puede consultar manteniendo pulsado.
-- En móvil solo se desplaza la franja central; Atrás, título y acciones del documento quedan fijos. Guardar utiliza un icono en espacio estrecho.
+- Las herramientas y acciones mantienen objetivos táctiles de 48 dp. En móvil, la muestra de color abre los estilos de la herramienta activa; con Goma activa muestra sus opciones. Más opciones conserva acceso a ambos editores de estilos.
 - Ocultar y Mostrar barra conservan los trazos y vuelven a lectura segura.
 - La página mantiene su imagen disponible durante desplazamiento/zoom con dos dedos mientras se prepara otra resolución; ver [corrección de gestos](docs/VALIDACION_GESTOS.md).
-- Bolígrafo con color/grosor configurables y tres estilos persistentes, activado explícitamente y exclusivo de un stylus reconocido por Android.
-- El dedo sigue navegando con el bolígrafo activado. Durante contacto del stylus se bloquea la navegación de esa secuencia para reducir movimientos de palma.
+- Bolígrafo con color/grosor configurables y tres estilos persistentes, activado explícitamente. Ajustes permite escribir con el dedo, activado inicialmente en móviles (ancho mínimo inferior a 600 dp) y desactivado en tablets.
+- Con escritura con dedo desactivada, el dedo navega y el bolígrafo requiere stylus. Con ella activada, un dedo escribe al activar Bolígrafo; dos dedos cancelan el trazo provisional y permiten navegar/ampliar sin marcas residuales. Se conserva la protección de palma del stylus.
 - Fluorescente semitransparente con color/grosor y tres estilos persistentes: exclusivamente dedo y recta entre extremos. Activación independiente del bolígrafo y opacidad anterior conservada.
 - El botón con muestra de color y número, junto a cada herramienta, abre sus tres memorias. Elegir una, ajustar y pulsar Guardar y usar; no activa el dibujo por sí solo.
 - Dos dedos cancelan el fluorescente provisional y permiten navegar/ampliar, sin dejar trazos al levantar uno de ellos.
@@ -51,6 +51,27 @@ Consulta [la prueba de las nuevas herramientas](docs/PRUEBAS_FLUORESCENTE_TEXTO.
 [la validación de esta etapa](docs/VALIDACION_FLUORESCENTE_TEXTO.md).
 Se conservan [las pruebas anteriores del bolígrafo](docs/VALIDACION_LAPIZ.md).
 La [validación inicial del motor](docs/VALIDACION.md) se conserva como evidencia de la base anterior.
+
+## Cambios locales de movilidad e idiomas (24/10/2026)
+
+- Interfaz en español, inglés y francés mediante recursos Android incluidos sin conexión.
+- Ajustes desde el explorador y desde Más opciones del lector: idioma por aplicación,
+  escritura con dedo y mantener la pantalla encendida mientras hay un PDF abierto.
+- El idioma usa LocaleManager de Android 13+ y se sincroniza con los ajustes del sistema.
+  El cambio de idioma conserva el documento y las anotaciones pendientes; vuelve a lectura.
+- Ko-fi: enlace discreto con el símbolo oficial solo en Ajustes, acompañado de «¿Te gusta Portylus? Apoya el proyecto.».
+- Textos legales originales conservados, con aviso localizado cuando corresponde.
+
+La corrección del 26/10 se prepara como 0.1.2 / código 16. El AAB desactiva la
+separación por idioma para incluir ES/EN/FR en cada instalación de Google Play:
+el selector funciona sin descargar traducciones. La prueba anterior con APK
+completo no comprobaba esa división de idiomas. El usuario confirmó la actualización
+desde Play y notificó el fallo en su móvil.
+APK y AAB se firman con la clave local de subida. El enlace de fuentes apunta a
+la descarga prevista de v0.1.2, pendiente de publicación antes de distribuirla.
+Los artefactos históricos se conservan. Ver [corrección y pruebas](docs/VALIDACION_v0.1.2.md).
+Evidencia funcional: [validación móvil](docs/VALIDACION_MOVIL_IDIOMAS.md).
+Subida y reclutamiento: [prueba cerrada](docs/play/PRUEBA_CERRADA.md).
 
 ## Compilar
 
@@ -87,12 +108,12 @@ con la contraseña protegida por DPAPI del usuario de Windows. Consulta [Firma y
 
 ## Versionado y GitHub
 
-Versión actual: **v0.1.0**, código Android **14**, paquete **`com.gtavoapps.portylus`**.
-Entrega y comprobaciones: [VALIDACION_v0.1.0.md](docs/VALIDACION_v0.1.0.md).
+Versión preparada: **v0.1.2**, código Android **16**, paquete **`com.gtavoapps.portylus`**.
+Entrega y comprobaciones: [VALIDACION_v0.1.2.md](docs/VALIDACION_v0.1.2.md).
 `version.properties` fija la versión y el código Android para las compilaciones locales y CI,
 sin sufijos de desarrollo ni etiquetas de funciones. Los commits y las recompilaciones no avanzan la versión.
 
-La entrega actual usa `versionName=0.1.0`, `versionCode=14`, según la numeración solicitada por el usuario.
+La nueva entrega preparada usa `versionName=0.1.2`, `versionCode=16`. Las entregas anteriores 0.1.0 / 14 y 0.1.1 / 15 se conservan.
 A partir de esa entrega, el último bloque recorre de 0 a 9 y después pasa al siguiente:
 `0.1.0 → 0.1.1 → … → 0.1.9 → 0.2.0`. No se continuará con `0.0.14`.
 El código Android siempre aumenta una unidad por entrega; las recompilaciones no lo avanzan.
@@ -101,7 +122,9 @@ Desde el cambio de nombre, las APK se entregan como `Portylus-v0.1.0.apk`, etc.
 Los documentos de validación anteriores conservan sus nombres y hashes históricos.
 
 Repositorio público: [gtavo/Portylus](https://github.com/gtavo/Portylus).
-Fuentes completas de v0.1.0, incluido MuPDF: [descarga ZIP](https://github.com/gtavo/Portylus/releases/download/v0.1.0/Portylus-v0.1.0-source.zip).
+Fuentes completas de v0.1.1 preparadas en `artifacts/Portylus-v0.1.1-source.zip`.
+Su publicación está pendiente; el enlace de la app ya está configurado para esa descarga.
+Las [fuentes públicas de v0.1.0](https://github.com/gtavo/Portylus/releases/download/v0.1.0/Portylus-v0.1.0-source.zip) se conservan.
 El ZIP automático de GitHub contiene la app, pero no sustituye ese archivo completo.
 Consulta [compilar desde las fuentes](docs/COMPILAR_DESDE_FUENTES.md).
 El workflow preparado compila debug/release, ejecuta JVM/Lint y tiene otro trabajo con emulador Android 16.

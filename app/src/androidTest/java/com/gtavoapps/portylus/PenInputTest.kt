@@ -331,6 +331,7 @@ class PenInputTest {
         var activity = instrumentation.startActivitySync(Intent(instrumentation.targetContext, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         var model = main { ViewModelProvider(activity)[AppViewModel::class.java] }
+        private val previousFingerWriting = main { model.fingerWriting }
         val source = File.createTempFile("pen-input-", ".pdf", instrumentation.targetContext.filesDir).apply {
             instrumentation.context.assets.open("base.pdf").use { input -> outputStream().use(input::copyTo) }
         }
@@ -341,6 +342,8 @@ class PenInputTest {
 
         init {
             await { !model.loading && model.stylesReady }
+            // These historical stylus/palm fixtures explicitly exercise stylus-only mode.
+            main { model.updateFingerWriting(false) }
             main { model.openPdf(Uri.fromFile(source), displayName) }
             await { model.document != null && !model.opening && findReader(activity.window.decorView)?.isDocumentReady == true }
             instrumentation.waitForIdleSync()
@@ -396,13 +399,13 @@ class PenInputTest {
         }
         override fun close() {
             assertArrayEquals("El bolígrafo no debe modificar el documento original", original, source.readBytes())
-            main { model.closePdf(); activity.finish() }
+            main { model.updateFingerWriting(previousFingerWriting); model.closePdf(); activity.finish() }
             instrumentation.waitForIdleSync()
             source.delete()
         }
     }
 
-    @Test fun compactToolbarKeepsTitleToolsAndDocumentActionsOnOneLine() {
+    @Test fun responsiveToolbarKeepsActionsVisibleAndAllPrimaryToolsReachable() {
         val name = "Álgebra y geometría · apuntes del primer trimestre con un nombre muy largo.pdf"
         fun find(label: String, node: AccessibilityNodeInfo? = instrumentation.uiAutomation.rootInActiveWindow): AccessibilityNodeInfo? {
             if (node == null) return null
@@ -463,6 +466,11 @@ class PenInputTest {
                 }
                 assertTrue(title.right <= bounds("Bolígrafo").left)
                 assertTrue(bounds("Ocultar").right <= undo.left)
+            } else if (instrumentation.targetContext.resources.configuration.screenWidthDp < 600) {
+                for (label in listOf("Bolígrafo", "Fluorescente", "Seleccionar texto", "Goma", "Ocultar")) {
+                    assertTrue(label, bounds(label).top >= save.bottom)
+                    assertTrue(label, bounds(label).width() >= 47 * instrumentation.targetContext.resources.displayMetrics.density)
+                }
             }
             screenshot("barra-lectura")
             reader.enable(); reader.write()

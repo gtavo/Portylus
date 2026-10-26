@@ -53,6 +53,10 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - run: chmod +x gradlew
+      - name: Bundletool for Play-style language regression
+        run: |
+          curl --fail --location --retry 3 https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar -o "$RUNNER_TEMP/bundletool.jar"
+          echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $RUNNER_TEMP/bundletool.jar" | sha256sum --check
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
@@ -63,13 +67,25 @@ jobs:
           ram-size: 2048M
           disable-animations: true
           # The gesture suite uses fixed pixel coordinates and a fully visible tablet toolbar.
-          # The phone toolbar is covered separately by compactToolbarKeepsTitleToolsAndDocumentActionsOnOneLine.
+          # Repeat the focused UI and language tests in a phone viewport below.
           script: |
             timeout 30s adb shell wm size 1280x800
             timeout 30s adb shell wm density 160
             timeout 30s adb shell wm size
             timeout 30s adb shell wm density
             timeout 10m ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
+            timeout 30s adb shell wm size 360x800
+            timeout 30s adb shell wm density 160
+            timeout 4m ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.gtavoapps.portylus.LanguageDeliveryTest,com.gtavoapps.portylus.MobileSettingsTest,com.gtavoapps.portylus.PenInputTest#responsiveToolbarKeepsActionsVisibleAndAllPrimaryToolsReachable --no-daemon --console=plain
+            # A full APK contains every locale and cannot detect Play language-split bugs.
+            timeout 3m ./gradlew bundleDebug --no-daemon --console=plain
+            java -jar "$RUNNER_TEMP/bundletool.jar" get-device-spec --output="$RUNNER_TEMP/device.json"
+            java -jar "$RUNNER_TEMP/bundletool.jar" build-apks --bundle=app/build/outputs/bundle/debug/app-debug.aab --output="$RUNNER_TEMP/device.apks" --device-spec="$RUNNER_TEMP/device.json" --ks="$HOME/.android/debug.keystore" --ks-key-alias=androiddebugkey --ks-pass=pass:android --key-pass=pass:android
+            java -jar "$RUNNER_TEMP/bundletool.jar" install-apks --apks="$RUNNER_TEMP/device.apks"
+            adb shell svc wifi disable
+            adb shell svc data disable
+            timeout 2m adb shell am instrument -w -r -e class com.gtavoapps.portylus.LanguageDeliveryTest com.gtavoapps.portylus.test/com.gtavoapps.portylus.PortylusTestRunner | tee app/build/reports/androidTests/play-languages.log
+            grep -q 'OK (2 tests)' app/build/reports/androidTests/play-languages.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

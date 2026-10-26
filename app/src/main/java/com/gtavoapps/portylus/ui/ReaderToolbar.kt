@@ -1,5 +1,6 @@
 package com.gtavoapps.portylus.ui
 
+import com.gtavoapps.portylus.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -19,27 +20,38 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gtavoapps.portylus.annotations.InkStyle
 
-/** Fixed title and document actions; only the tools scroll when the screen is narrow. */
+/** Two compact rows keep every primary tool visible on phones with 48 dp touch targets. */
 @Composable fun ReaderToolbar(name: String, saving: Boolean, onClose: () -> Unit,
-    tools: @Composable () -> Unit, actions: @Composable (compact: Boolean) -> Unit) {
+    tools: @Composable (compact: Boolean) -> Unit, actions: @Composable (compact: Boolean) -> Unit) {
+    val strings = androidx.compose.ui.platform.LocalContext.current
     Surface(color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val compact = maxWidth < 600.dp
-                val titleWidth = if (compact) (maxWidth * 0.16f).coerceIn(48.dp, 84.dp)
-                    else (maxWidth * 0.18f).coerceIn(100.dp, 240.dp)
-                Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp),
+                val availableWidth = maxWidth
+                val fontScale = androidx.compose.ui.platform.LocalDensity.current.fontScale
+                val compact = maxWidth < 600.dp || (fontScale > 1.3f && maxWidth < 1000.dp)
+                Column {
+                Row(Modifier.fillMaxWidth().height(if (compact) 48.dp else 56.dp).padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    ToolbarAction("Atrás", enabled = !saving, onClick = onClose) { ActionIcon("back", !saving) }
-                    Filename(name, Modifier.width(titleWidth).padding(end = 8.dp))
+                    ToolbarAction(strings.getString(R.string.back), enabled = !saving, onClick = onClose) { ActionIcon("back", !saving) }
+                    if (compact) Box(Modifier.weight(1f).padding(end = 4.dp)) {
+                        Filename(name, Modifier.fillMaxWidth())
+                    }
+                    else {
+                    Filename(name, Modifier.width((availableWidth * 0.18f).coerceIn(100.dp, 240.dp)).padding(end = 8.dp))
                     Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                         Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 4.dp),
                             horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalAlignment = Alignment.CenterVertically) { tools() }
+                            verticalAlignment = Alignment.CenterVertically) { tools(false) }
                     }
                     VerticalDivider(Modifier.height(24.dp).padding(horizontal = 4.dp),
                         color = MaterialTheme.colorScheme.outlineVariant)
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) { actions(compact) }
+                }
+                if (compact) Row(Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically) { tools(true) }
                 }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -50,8 +62,8 @@ import com.gtavoapps.portylus.annotations.InkStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun Filename(name: String, modifier: Modifier) {
     TooltipBox(positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = { PlainTooltip { Text(name) } }, state = rememberTooltipState()) {
-        Text(name, modifier, maxLines = 1, overflow = TextOverflow.Ellipsis,
+        tooltip = { PlainTooltip { Text(name) } }, state = rememberTooltipState(), modifier = modifier) {
+        Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
     }
 }

@@ -1,5 +1,6 @@
 package com.gtavoapps.portylus
 
+import com.gtavoapps.portylus.R
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -51,6 +52,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.text.font.FontWeight
 import com.gtavoapps.portylus.ui.PortylusTheme
 import com.gtavoapps.portylus.ui.PortylusBrand
+import com.gtavoapps.portylus.ui.SettingsDialog
 import com.gtavoapps.portylus.ui.LegalDialog
 import com.gtavoapps.portylus.ui.ReaderToolbar
 import com.gtavoapps.portylus.ui.ToolbarAction
@@ -106,8 +108,13 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun PdfApp(model: AppViewModel = viewModel()) {
+    val strings = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
+    var settingsVisible by rememberSaveable { mutableStateOf(false) }
     var legalVisible by rememberSaveable { mutableStateOf(false) }
+    if (settingsVisible) SettingsDialog(model,
+        onInformation = { settingsVisible = false; legalVisible = true },
+        onDismiss = { settingsVisible = false })
     if (legalVisible) LegalDialog { legalVisible = false }
     val treePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) result.data?.let { data ->
@@ -164,6 +171,15 @@ class MainActivity : ComponentActivity() {
         eraserEnabled = false
         if (document?.pen?.isDirty == true) closeRequest = AfterSave.CLOSE else model.closePdf()
     }
+    LaunchedEffect(model.fingerWriting) {
+        reader?.cancelInteraction()
+        penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
+    }
+    val currentView = androidx.compose.ui.platform.LocalView.current
+    androidx.compose.runtime.DisposableEffect(currentView, document != null, model.keepAwake) {
+        currentView.keepScreenOn = document != null && model.keepAwake
+        onDispose { currentView.keepScreenOn = false }
+    }
     LaunchedEffect(model.pendingExternalUri, model.opening, model.saving, document) {
         if (model.pendingExternalUri != null && !model.opening && !model.saving && document?.pen?.isDirty != true)
             model.openPendingPdf()
@@ -175,67 +191,88 @@ class MainActivity : ComponentActivity() {
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
 
-            if (document == null) TopAppBar(title = { PortylusBrand() }, actions = {
-                TextButton(onClick = { legalVisible = true }) { Text("Información") }
-                if (model.recoveryFile != null) TextButton(onClick = { saveAs(recovery = true) }) { Text("Recuperar copia") }
-                TextButton(enabled = !model.loading && !model.opening, onClick = {
-                    pdfPicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE); type = "application/pdf"
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                    })
-                }) { Text("Abrir PDF") }
-            }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface))
+            if (document == null) {
+                val compact = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize.width <
+                    with(androidx.compose.ui.platform.LocalDensity.current) { 600.dp.toPx() }
+                TopAppBar(title = { PortylusBrand(compact) }, actions = {
+                    ToolbarAction(strings.getString(R.string.settings), onClick = { settingsVisible = true }) {
+                        ActionIcon("settings")
+                    }
+                    ToolbarAction(strings.getString(R.string.open_pdf), enabled = !model.loading && !model.opening, onClick = {
+                        pdfPicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE); type = "application/pdf"
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                        })
+                    }) { ActionIcon("open") }
+                }, expandedHeight = 56.dp,
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface))
+            }
             else if (toolbarVisible) ReaderToolbar(document.name, model.saving, ::requestClose,
-                tools = {
-                    ToolbarAction(if (penEnabled) "Bolígrafo activo" else "Bolígrafo", selected = penEnabled,
+                tools = { compact ->
+                    ToolbarAction(if (penEnabled) strings.getString(R.string.pen_active) else strings.getString(R.string.pen), selected = penEnabled,
                         enabled = model.stylesReady && !model.saving && document.session.canAnnotate, onClick = {
                             eraserEnabled = false; textSelectionEnabled = false; penEnabled = !penEnabled
+                            if (model.fingerWriting) highlighterEnabled = false
                         }) { ActionIcon("pen", tint = androidx.compose.material3.LocalContentColor.current) }
-                    ToolbarAction("Estilos del bolígrafo", enabled = model.stylesReady && !model.saving,
+                    if (!compact) ToolbarAction(strings.getString(R.string.pen_styles), enabled = model.stylesReady && !model.saving,
                         onClick = { stylesFor = AnnotationKind.PEN }) {
                         StyleBadge(model.inkStyles.pen.current, model.inkStyles.pen.selected)
                     }
-                    ToolbarAction(if (highlighterEnabled) "Fluorescente activo" else "Fluorescente", selected = highlighterEnabled,
+                    ToolbarAction(if (highlighterEnabled) strings.getString(R.string.highlight_active) else strings.getString(R.string.highlight), selected = highlighterEnabled,
                         enabled = model.stylesReady && !model.saving && document.session.canAnnotate, onClick = {
                             eraserEnabled = false; textSelectionEnabled = false; highlighterEnabled = !highlighterEnabled
+                            if (model.fingerWriting) penEnabled = false
                         }) { ActionIcon("highlighter", tint = androidx.compose.material3.LocalContentColor.current) }
-                    ToolbarAction("Estilos del fluorescente", enabled = model.stylesReady && !model.saving,
+                    if (!compact) ToolbarAction(strings.getString(R.string.highlight_styles), enabled = model.stylesReady && !model.saving,
                         onClick = { stylesFor = AnnotationKind.HIGHLIGHTER }) {
                         StyleBadge(model.inkStyles.highlighter.current, model.inkStyles.highlighter.selected)
                     }
-                    ToolbarAction(if (textSelectionEnabled) "Selección activa" else "Seleccionar texto", selected = textSelectionEnabled,
+                    ToolbarAction(if (textSelectionEnabled) strings.getString(R.string.selection_active) else strings.getString(R.string.select_text), selected = textSelectionEnabled,
                         enabled = !model.saving, onClick = {
                             eraserEnabled = false; penEnabled = false; highlighterEnabled = false; textSelectionEnabled = !textSelectionEnabled
                         }) { ActionIcon("selectText", tint = androidx.compose.material3.LocalContentColor.current) }
-                    ToolbarAction(if (eraserEnabled) "Goma activa" else "Goma", selected = eraserEnabled,
+                    ToolbarAction(if (eraserEnabled) strings.getString(R.string.eraser_active) else strings.getString(R.string.eraser), selected = eraserEnabled,
                         enabled = !model.saving && document.session.canAnnotate, onClick = {
                             penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = !eraserEnabled
                         }) { ActionIcon("eraser", tint = androidx.compose.material3.LocalContentColor.current) }
-                    if (eraserEnabled) ToolbarAction("Opciones de goma", enabled = !model.saving,
+                    if (compact && !eraserEnabled) ToolbarAction(
+                        strings.getString(if (highlighterEnabled) R.string.highlight_styles else R.string.pen_styles),
+                        enabled = model.stylesReady && !model.saving,
+                        onClick = { stylesFor = if (highlighterEnabled) AnnotationKind.HIGHLIGHTER else AnnotationKind.PEN }) {
+                        val presets = if (highlighterEnabled) model.inkStyles.highlighter else model.inkStyles.pen
+                        StyleBadge(presets.current, presets.selected)
+                    }
+                    if (eraserEnabled) ToolbarAction(strings.getString(R.string.eraser_options), enabled = !model.saving,
                         onClick = { showEraserOptions = true }) { ActionIcon("settings") }
-                    ToolbarAction("Ocultar", enabled = !model.saving, onClick = {
+                    ToolbarAction(strings.getString(R.string.hide), enabled = !model.saving, onClick = {
                         eraserEnabled = false; penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; toolbarVisible = false
                     }) { ActionIcon("hide") }
                 }, actions = { compact ->
-                    ToolbarAction("Deshacer", enabled = document.pen.canUndo && !model.saving, onClick = {
+                    ToolbarAction(strings.getString(R.string.undo), enabled = document.pen.canUndo && !model.saving, onClick = {
                         reader?.cancelInteraction(); document.pen.undo()
                     }) { ActionIcon("undo", document.pen.canUndo && !model.saving) }
-                    ToolbarAction("Rehacer", enabled = document.pen.canRedo && !model.saving, onClick = {
+                    ToolbarAction(strings.getString(R.string.redo), enabled = document.pen.canRedo && !model.saving, onClick = {
                         reader?.cancelInteraction(); document.pen.redo()
                     }) { ActionIcon("redo", document.pen.canRedo && !model.saving) }
-                    if (compact) ToolbarAction(if (model.saving) "Guardando…" else "Guardar",
+                    if (compact) ToolbarAction(if (model.saving) strings.getString(R.string.saving) else strings.getString(R.string.save),
                         enabled = document.pen.isDirty && !model.saving, onClick = {
                             reader?.cancelInteraction(); model.savePdf()
                         }) { ActionIcon("save", document.pen.isDirty && !model.saving, MaterialTheme.colorScheme.primary) }
                     else Button(enabled = document.pen.isDirty && !model.saving, onClick = {
                         reader?.cancelInteraction(); model.savePdf()
-                    }, modifier = Modifier.padding(horizontal = 4.dp)) { Text(if (model.saving) "Guardando…" else "Guardar") }
+                    }, modifier = Modifier.padding(horizontal = 4.dp)) { Text(if (model.saving) strings.getString(R.string.saving) else strings.getString(R.string.save)) }
                     Box {
-                        ToolbarAction("Más opciones", enabled = !model.saving, onClick = { moreActions = true }) { ActionIcon("more") }
+                        ToolbarAction(strings.getString(R.string.more), enabled = !model.saving, onClick = { moreActions = true }) { ActionIcon("more") }
                         DropdownMenu(expanded = moreActions, onDismissRequest = { moreActions = false }) {
-                            DropdownMenuItem(text = { Text("Privacidad y licencias") }, onClick = { moreActions = false; legalVisible = true })
-                            DropdownMenuItem(text = { Text("Guardar como") }, onClick = { moreActions = false; reader?.cancelInteraction(); saveAs() })
-                            if (model.recoveryFile != null) DropdownMenuItem(text = { Text("Recuperar copia del original") },
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.settings)) },
+                                onClick = { moreActions = false; reader?.cancelInteraction(); settingsVisible = true })
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.pen_styles)) },
+                                onClick = { moreActions = false; stylesFor = AnnotationKind.PEN })
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.highlight_styles)) },
+                                onClick = { moreActions = false; stylesFor = AnnotationKind.HIGHLIGHTER })
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.privacy_licenses)) }, onClick = { moreActions = false; legalVisible = true })
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.save_as)) }, onClick = { moreActions = false; reader?.cancelInteraction(); saveAs() })
+                            if (model.recoveryFile != null) DropdownMenuItem(text = { Text(strings.getString(R.string.recover_original_copy)) },
                                 onClick = { moreActions = false; saveAs(recovery = true) })
                         }
                     }
@@ -259,6 +296,7 @@ class MainActivity : ComponentActivity() {
                     } }, update = {
                         it.editingLocked = model.saving
                         it.annotationRevision = document.pen.revision
+                        it.fingerWriting = model.fingerWriting
                         it.penEnabled = penEnabled
                         it.highlighterEnabled = highlighterEnabled
                         it.textSelectionEnabled = textSelectionEnabled
@@ -271,26 +309,26 @@ class MainActivity : ComponentActivity() {
                 if (textSelectionEnabled) Row(Modifier.align(Alignment.TopCenter).padding(8.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), RoundedCornerShape(12.dp)),
                     verticalAlignment = Alignment.CenterVertically) {
-                    if (selectedText.isEmpty()) Text("Toca o arrastra sobre el texto", Modifier.padding(12.dp))
+                    if (selectedText.isEmpty()) Text(strings.getString(R.string.tap_text), Modifier.padding(12.dp))
                     else {
                         TextButton(onClick = {
                             context.getSystemService(ClipboardManager::class.java)
-                                .setPrimaryClip(ClipData.newPlainText("Texto del PDF", selectedText))
-                        }) { Text("Copiar") }
-                        TextButton(onClick = { reader?.clearTextSelection() }) { Text("Quitar selección") }
+                                .setPrimaryClip(ClipData.newPlainText(strings.getString(R.string.pdf_text), selectedText))
+                        }) { Text(strings.getString(R.string.copy)) }
+                        TextButton(onClick = { reader?.clearTextSelection() }) { Text(strings.getString(R.string.clear_selection)) }
                     }
                 }
                 Text("$page / ${document.session.pageCount}", Modifier.align(Alignment.BottomEnd).padding(12.dp)
                     .background(androidx.compose.ui.graphics.Color(0xe6071a33), RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color.White)
-                if (document.pen.isDirty) Text("Sin guardar", Modifier.align(Alignment.BottomStart).padding(12.dp)
+                if (document.pen.isDirty) Text(strings.getString(R.string.unsaved), Modifier.align(Alignment.BottomStart).padding(12.dp)
                     .background(androidx.compose.ui.graphics.Color(0xe6071a33), RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color.White)
                 if (!toolbarVisible) Box(Modifier.align(Alignment.TopEnd).padding(8.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), RoundedCornerShape(24.dp))) {
-                    ToolbarAction("Mostrar barra", onClick = { toolbarVisible = true }) { ActionIcon("show") }
+                    ToolbarAction(strings.getString(R.string.show_toolbar), onClick = { toolbarVisible = true }) { ActionIcon("show") }
                 }
             }
             if (model.opening || model.saving) CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -307,30 +345,30 @@ class MainActivity : ComponentActivity() {
     val exitAction = if (model.pendingExternalUri != null && document?.pen?.isDirty == true) AfterSave.OPEN_PENDING else closeRequest
     if (exitAction != null && !model.saving && model.saveFailure == null) AlertDialog(
         onDismissRequest = { closeRequest = null; if (exitAction == AfterSave.OPEN_PENDING) model.dismissExternalPdf() },
-        title = { Text(if (exitAction == AfterSave.OPEN_PENDING) "¿Guardar antes de abrir otro PDF?" else "¿Guardar los cambios?") },
-        text = { Text("Hay anotaciones sin guardar. La página se recordará también si eliges no guardarlas.") },
+        title = { Text(if (exitAction == AfterSave.OPEN_PENDING) strings.getString(R.string.save_before_open) else strings.getString(R.string.save_changes)) },
+        text = { Text(strings.getString(R.string.unsaved_explanation)) },
         confirmButton = { TextButton(onClick = {
             closeRequest = null; reader?.cancelInteraction(); model.savePdf(after = exitAction)
-        }) { Text(if (exitAction == AfterSave.OPEN_PENDING) "Guardar y abrir" else "Guardar y salir") } },
+        }) { Text(if (exitAction == AfterSave.OPEN_PENDING) strings.getString(R.string.save_open) else strings.getString(R.string.save_exit)) } },
         dismissButton = { Row {
             TextButton(onClick = {
                 closeRequest = null
                 if (exitAction == AfterSave.OPEN_PENDING) model.openPendingPdf() else model.closePdf()
-            }) { Text("No guardar") }
+            }) { Text(strings.getString(R.string.discard)) }
             TextButton(onClick = {
                 closeRequest = null
                 if (exitAction == AfterSave.OPEN_PENDING) model.dismissExternalPdf()
-            }) { Text("Cancelar") }
+            }) { Text(strings.getString(R.string.cancel)) }
         } })
     model.saveFailure?.let { error ->
         AlertDialog(onDismissRequest = { model.dismissSaveFailure(); model.dismissExternalPdf() },
-            title = { Text("Guardado pendiente") }, text = { Text(error) },
+            title = { Text(strings.getString(R.string.save_pending)) }, text = { Text(error) },
             confirmButton = { if (document != null) TextButton(onClick = {
                 model.dismissSaveFailure(); saveAs(model.saveAfter)
-            }) { Text("Guardar como") } },
+            }) { Text(strings.getString(R.string.save_as)) } },
             dismissButton = { Row {
-                if (model.recoveryFile != null) TextButton(onClick = { saveAs(recovery = true) }) { Text("Recuperar original") }
-                TextButton(onClick = { model.dismissSaveFailure(); model.dismissExternalPdf() }) { Text("Continuar") }
+                if (model.recoveryFile != null) TextButton(onClick = { saveAs(recovery = true) }) { Text(strings.getString(R.string.recover_original)) }
+                TextButton(onClick = { model.dismissSaveFailure(); model.dismissExternalPdf() }) { Text(strings.getString(R.string.continue_action)) }
             } })
     }
 

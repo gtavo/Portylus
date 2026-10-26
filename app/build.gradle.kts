@@ -47,7 +47,7 @@ android {
         buildConfigField("String", "PRIVACY_URL", quoted(publicInfo("privacyPolicyUrl")))
         buildConfigField("String", "SOURCE_URL", quoted(publicInfo("sourceCodeUrl")))
         buildConfigField("String", "SUPPORT_URL", quoted(publicInfo("supportUrl")))
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.gtavoapps.portylus.PortylusTestRunner"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
     buildFeatures { compose = true; buildConfig = true }
@@ -69,6 +69,9 @@ android {
             }
         }
     }
+    // The in-app picker must work offline after a Play install, even if the device
+    // initially requests only one language. Keep ES/EN/FR in every base APK.
+    bundle { language { enableSplit = false } }
     packaging { jniLibs.useLegacyPackaging = false }
     lint { abortOnError = true }
 }

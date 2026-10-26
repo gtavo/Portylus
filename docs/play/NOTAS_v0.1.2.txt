@@ -1,0 +1,12 @@
+<es-ES>
+Corregido el cambio de idioma tras instalar desde Google Play: español, inglés y francés siempre disponibles sin conexión.
+El enlace de apoyo a Ko-fi aparece solo en Ajustes, con un mensaje discreto y su logo pequeño.
+</es-ES>
+<en-US>
+Fixed language switching after installing from Google Play: Spanish, English and French are always available offline.
+The Ko-fi support link now appears only in Settings, with a small logo and a discreet message.
+</en-US>
+<fr-FR>
+Changement de langue corrigé après installation depuis Google Play : espagnol, anglais et français toujours disponibles hors connexion.
+Le lien de soutien Ko-fi apparaît uniquement dans les réglages, avec un petit logo et un message discret.
+</fr-FR>

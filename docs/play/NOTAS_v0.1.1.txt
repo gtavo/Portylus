@@ -1,0 +1,11 @@
+<es-ES>
+Vista móvil vertical más compacta, con las herramientas visibles. Interfaz en español, inglés y francés. Nuevos ajustes de idioma, escritura con el dedo y pantalla encendida. Botón Ko-fi más visible. Se conservan el guardado manual y las anotaciones al cambiar de idioma.
+</es-ES>
+
+<en-US>
+More compact portrait phone layout with visible tools. Spanish, English and French interface. New settings for language, finger writing and keeping the screen on. More visible Ko-fi button. Manual saving and unsaved annotations are preserved when changing language.
+</en-US>
+
+<fr-FR>
+Affichage du téléphone en mode portrait plus compact, avec les outils visibles. Interface en espagnol, anglais et français. Nouveaux réglages de langue, d’écriture au doigt et d’écran allumé. Bouton Ko-fi plus visible. Enregistrement manuel conservé ; les annotations sont préservées lors du changement de langue.
+</fr-FR>
