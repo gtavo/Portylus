@@ -54,6 +54,8 @@ import com.gtavoapps.portylus.ui.PortylusTheme
 import com.gtavoapps.portylus.ui.PortylusBrand
 import com.gtavoapps.portylus.ui.SettingsDialog
 import com.gtavoapps.portylus.ui.LegalDialog
+import com.gtavoapps.portylus.ui.PageJumpDialog
+import androidx.compose.foundation.layout.heightIn
 import com.gtavoapps.portylus.ui.SearchBar
 import com.gtavoapps.portylus.ui.ToolbarVisibilityAction
 import androidx.compose.foundation.layout.imePadding
@@ -152,6 +154,7 @@ class MainActivity : ComponentActivity() {
     val document = model.document
     var toolbarVisible by rememberSaveable(document?.file?.name) { mutableStateOf(true) }
     var page by rememberSaveable(document?.file?.name) { mutableIntStateOf(document?.lastPage ?: 1) }
+    var pageJumpVisible by rememberSaveable(document?.file?.name) { mutableStateOf(false) }
     // Intentionally not saveable: a recreated screen and every new document start in reading mode.
     var penEnabled by remember(document?.file?.name) { mutableStateOf(false) }
     var highlighterEnabled by remember(document?.file?.name) { mutableStateOf(false) }
@@ -335,10 +338,18 @@ class MainActivity : ComponentActivity() {
                         TextButton(onClick = { reader?.clearTextSelection() }) { Text(strings.getString(R.string.clear_selection)) }
                     }
                 }
-                Text("$page / ${document.session.pageCount}", Modifier.align(Alignment.BottomEnd).padding(12.dp)
-                    .background(androidx.compose.ui.graphics.Color(0xe6071a33), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color.White)
+                androidx.compose.material3.Surface(
+                    onClick = { reader?.cancelInteraction(); pageJumpVisible = true },
+                    enabled = !model.saving && reader != null,
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).heightIn(min = 48.dp)
+                        .semantics { contentDescription = strings.getString(R.string.page_counter, page, document.session.pageCount) },
+                    shape = RoundedCornerShape(8.dp), color = androidx.compose.ui.graphics.Color(0xe6071a33),
+                    contentColor = androidx.compose.ui.graphics.Color.White) {
+                    Row(Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("$page / ${document.session.pageCount}", style = MaterialTheme.typography.labelMedium)
+                        ActionIcon("down", tint = androidx.compose.ui.graphics.Color.White)
+                    }
+                }
                 if (document.pen.isDirty) Text(strings.getString(R.string.unsaved), Modifier.align(Alignment.BottomStart).padding(12.dp)
                     .background(androidx.compose.ui.graphics.Color(0xe6071a33), RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -356,6 +367,13 @@ class MainActivity : ComponentActivity() {
             if (model.opening || model.saving) CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
     }
+    if (pageJumpVisible && document != null) PageJumpDialog(page, document.session.pageCount,
+        onGo = { target ->
+            model.search.close()
+            penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
+            reader?.goToPage(target)
+            pageJumpVisible = false
+        }, onDismiss = { pageJumpVisible = false })
     if (showEraserOptions && document != null) EraserDialog(eraserOptions,
         onChange = { eraserOptions = it }, onDismiss = { showEraserOptions = false })
     stylesFor?.let { kind ->

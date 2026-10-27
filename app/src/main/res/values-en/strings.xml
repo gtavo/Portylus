@@ -182,4 +182,10 @@
     <string name="search_error">"The search could not be completed."</string>
     <string name="search_limited">"Showing the first matches. Refine your search."</string>
     <string name="search_counter">"Match %1$d of %2$d"</string>
+    <string name="go_to_page">"Go to page"</string>
+    <string name="page_number">"Page"</string>
+    <string name="page_range">"1 to %1$d"</string>
+    <string name="page_jump_invalid">"Enter a number between 1 and %1$d."</string>
+    <string name="go">"Go"</string>
+    <string name="page_counter">"Page %1$d of %2$d. Go to page."</string>
 </resources>

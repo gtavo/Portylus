@@ -182,4 +182,10 @@
     <string name="search_error">"No se ha podido completar la búsqueda."</string>
     <string name="search_limited">"Se muestran las primeras coincidencias. Concreta la búsqueda."</string>
     <string name="search_counter">"Coincidencia %1$d de %2$d"</string>
+    <string name="go_to_page">"Ir a la página"</string>
+    <string name="page_number">"Página"</string>
+    <string name="page_range">"De 1 a %1$d"</string>
+    <string name="page_jump_invalid">"Introduce un número entre 1 y %1$d."</string>
+    <string name="go">"Ir"</string>
+    <string name="page_counter">"Página %1$d de %2$d. Ir a la página."</string>
 </resources>

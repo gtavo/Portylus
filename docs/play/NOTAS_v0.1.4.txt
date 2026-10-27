@@ -1,0 +1,12 @@
+<es-ES>
+Toca el contador de páginas para ir directamente a cualquier página. Incluye teclado numérico y validación del rango.
+El salto conserva el zoom y las anotaciones pendientes, también con la barra oculta.
+</es-ES>
+<en-US>
+Tap the page counter to jump directly to any page, with a numeric keyboard and range validation.
+Your zoom and pending annotations are preserved, including when the toolbar is hidden.
+</en-US>
+<fr-FR>
+Touchez le compteur pour accéder directement à une page, avec clavier numérique et validation du numéro.
+Le zoom et les annotations en cours sont conservés, même lorsque la barre est masquée.
+</fr-FR>

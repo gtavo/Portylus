@@ -42,6 +42,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
     private val strings = context
     var fingerWriting = false
         set(value) { if (field != value) cancelStroke(); field = value }
+    private var explicitPage: Int? = null
     private var pendingPage: Int? = initialPage.coerceIn(1, session.pageCount) - 1
     var editingLocked = false
         set(value) { if (value && !field) { cancelStroke(); scroller.forceFinished(true) }; field = value }
@@ -141,6 +142,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
 
     private val scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            explicitPage = null
             scroller.forceFinished(true)
             scaleFocusX = detector.focusX; scaleFocusY = detector.focusY
             return true
@@ -161,6 +163,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         override fun onDown(e: MotionEvent): Boolean { scroller.forceFinished(true); return true }
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             if (scaleDetector.isInProgress) return false
+            explicitPage = null
             panX -= distanceX
             offsetY += distanceY
             clamp()
@@ -168,12 +171,14 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
             return true
         }
         override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            explicitPage = null
             scroller.fling((-panX).toInt(), offsetY.toInt(), -velocityX.toInt(), -velocityY.toInt(),
                 0, (width * (zoom - 1)).toInt(), 0, maxOffset().toInt())
             postInvalidateOnAnimation()
             return true
         }
         override fun onDoubleTap(e: MotionEvent): Boolean {
+            explicitPage = null
             val old = zoom
             zoom = if (zoom > 1.1f) 1f else 2f
             panX = e.x - (e.x - panX) * (zoom / old)
@@ -255,6 +260,19 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         }
         focusSearch()
     }
+    /** A direct jump preserves zoom, cancels provisional input and never writes annotations. */
+    fun goToPage(page: Int) {
+        require(page in 1..session.pageCount)
+        cancelInteraction()
+        clearTextSelection()
+        pendingSearch = null
+        explicitPage = page - 1
+        pendingPage = page - 1
+        layoutPages()
+        clamp()
+        invalidate()
+    }
+
     /** Updates an overlay only; search can never become a saved annotation. */
     fun showSearch(matches: List<SearchMatch>, selected: Int, navigation: Long) {
         if (searchMatches !== matches) {
@@ -275,6 +293,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         if (width <= 0 || height <= 0 || match.page !in sizes.indices) return
         val points = match.quads.flatMap { listOf(it.upperLeft, it.upperRight, it.lowerLeft, it.lowerRight) }
         if (points.isEmpty()) return
+        explicitPage = null
         val size = sizes[match.page]
         val scale = width * zoom / size.width
         val x = (points.minOf { it.x } + points.maxOf { it.x }) / 2
@@ -347,7 +366,10 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
         }
         // Never let a long fling leave an unbounded queue of obsolete page renders.
         jobs.keys.filter { it !in visiblePages }.forEach { jobs.remove(it)?.cancel() }
-        if (bestPage != currentPage) { currentPage = bestPage; onPageChanged(bestPage + 1) }
+        // A short final page may occupy less screen area than its neighbour after a jump.
+        // Keep the requested page until the reader actually scrolls or zooms again.
+        val displayedPage = explicitPage?.takeIf { it in visiblePages } ?: bestPage
+        if (displayedPage != currentPage) { currentPage = displayedPage; onPageChanged(displayedPage + 1) }
     }
 
     private fun placement(index: Int) = PagePlacement(index, panX, tops[index] * zoom - offsetY,

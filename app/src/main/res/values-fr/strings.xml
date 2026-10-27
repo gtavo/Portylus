@@ -182,4 +182,10 @@
     <string name="search_error">"La recherche n’a pas pu être terminée."</string>
     <string name="search_limited">"Seuls les premiers résultats sont affichés. Précisez la recherche."</string>
     <string name="search_counter">"Résultat %1$d sur %2$d"</string>
+    <string name="go_to_page">"Aller à la page"</string>
+    <string name="page_number">"Page"</string>
+    <string name="page_range">"De 1 à %1$d"</string>
+    <string name="page_jump_invalid">"Saisissez un nombre entre 1 et %1$d."</string>
+    <string name="go">"Aller"</string>
+    <string name="page_counter">"Page %1$d sur %2$d. Aller à la page."</string>
 </resources>
