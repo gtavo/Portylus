@@ -13,7 +13,7 @@
     <string name="eraser_active">"Eraser active"</string>
     <string name="eraser">"Eraser"</string>
     <string name="eraser_options">"Eraser options"</string>
-    <string name="hide">"Hide"</string>
+    <string name="hide">"Hide toolbar"</string>
     <string name="undo">"Undo"</string>
     <string name="redo">"Redo"</string>
     <string name="saving">"Saving…"</string>
@@ -168,4 +168,18 @@
     <string name="save_restored">"Could not save here. The previous file has been kept. You can use Save as."</string>
     <string name="save_recovery">"Could not complete the save or restore the destination. Portylus keeps a copy of the previous file for recovery."</string>
     <string name="support_message">"Enjoying Portylus? Support the project."</string>
+    <string name="hide_short">"Hide"</string>
+    <string name="search_text">"Find text"</string>
+    <string name="search_placeholder">"Search this PDF"</string>
+    <string name="whole_words">"Whole words"</string>
+    <string name="previous_match">"Previous match"</string>
+    <string name="next_match">"Next match"</string>
+    <string name="close_search">"Close search"</string>
+    <string name="clear_search">"Clear search"</string>
+    <string name="searching">"Searching…"</string>
+    <string name="search_no_matches">"No matches"</string>
+    <string name="search_no_text">"This PDF has no searchable text. It may be a scan."</string>
+    <string name="search_error">"The search could not be completed."</string>
+    <string name="search_limited">"Showing the first matches. Refine your search."</string>
+    <string name="search_counter">"Match %1$d of %2$d"</string>
 </resources>

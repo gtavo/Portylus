@@ -89,6 +89,25 @@ import com.gtavoapps.portylus.annotations.InkStyle
     }
 }
 
+/** A visible label makes this control understandable without guessing the chevron. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable fun ToolbarVisibilityAction(enabled: Boolean, onClick: () -> Unit) {
+    val strings = androidx.compose.ui.platform.LocalContext.current
+    val label = strings.getString(R.string.hide)
+    TooltipBox(positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { PlainTooltip { Text(label) } }, state = rememberTooltipState()) {
+        IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(48.dp)
+            .semantics { contentDescription = label }) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ActionIcon("hide", enabled)
+                Text(strings.getString(R.string.hide_short), fontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp),
+                    lineHeight = androidx.compose.ui.unit.TextUnit(10f, androidx.compose.ui.unit.TextUnitType.Sp), maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
 @Composable fun StyleBadge(style: InkStyle, slot: Int) {
     val color = Color(style.color)
     Box(Modifier.size(22.dp).background(color, CircleShape), contentAlignment = Alignment.Center) {

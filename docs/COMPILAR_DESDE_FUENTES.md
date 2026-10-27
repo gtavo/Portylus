@@ -2,13 +2,13 @@
 
 ## Obtener la versión completa
 
-Los enlaces de v0.1.2 están preparados y pendientes de publicación. La copia local
-completa está en artifacts/Portylus-v0.1.2-source.zip.
+Los enlaces de v0.1.3 están preparados y pendientes de publicación. La copia local
+completa está en artifacts/Portylus-v0.1.3-source.zip.
 
-Para v0.1.2 / código 16 / com.gtavoapps.portylus descargar:
+Para v0.1.3 / código 17 / com.gtavoapps.portylus descargar:
 
-- ZIP: https://github.com/gtavo/Portylus/releases/download/v0.1.2/Portylus-v0.1.2-source.zip
-- SHA-256: https://github.com/gtavo/Portylus/releases/download/v0.1.2/Portylus-v0.1.2-source.zip.sha256
+- ZIP: https://github.com/gtavo/Portylus/releases/download/v0.1.3/Portylus-v0.1.3-source.zip
+- SHA-256: https://github.com/gtavo/Portylus/releases/download/v0.1.3/Portylus-v0.1.3-source.zip.sha256
 - Repositorio y cambios: https://github.com/gtavo/Portylus
 
 El ZIP completo contiene el directorio Portylus y, dentro, upstream con el motor MuPDF
@@ -16,7 +16,7 @@ El ZIP completo contiene el directorio Portylus y, dentro, upstream con el motor
 no incluye upstream; si se usa un clon de Git, scripts/export-source.py descarga y verifica
 estos archivos según third_party/mupdf/source-manifest.json.
 
-En Linux/macOS se puede comprobar el archivo con sha256sum -c Portylus-v0.1.2-source.zip.sha256.
+En Linux/macOS se puede comprobar el archivo con sha256sum -c Portylus-v0.1.3-source.zip.sha256.
 En Windows usar Get-FileHash -Algorithm SHA256 y comparar con el fichero .sha256.
 
 ## Compilar la app

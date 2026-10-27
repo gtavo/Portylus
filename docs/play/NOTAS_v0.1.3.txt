@@ -1,0 +1,12 @@
+<es-ES>
+Busca texto con la lupa: fragmentos o palabras completas, resaltado y navegación entre coincidencias en todas las páginas.
+Los controles para ocultar y mostrar la barra ahora incluyen etiquetas más claras.
+</es-ES>
+<en-US>
+Find text with the magnifying glass: partial or whole-word matches, highlighting and navigation across all pages.
+The hide and show toolbar controls now have clearer labels.
+</en-US>
+<fr-FR>
+Recherchez du texte avec la loupe : fragments ou mots entiers, surlignage et navigation dans toutes les pages.
+Les commandes pour masquer et afficher la barre ont des libellés plus clairs.
+</fr-FR>

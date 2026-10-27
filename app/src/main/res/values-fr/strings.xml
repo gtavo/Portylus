@@ -13,7 +13,7 @@
     <string name="eraser_active">"Gomme active"</string>
     <string name="eraser">"Gomme"</string>
     <string name="eraser_options">"Options de la gomme"</string>
-    <string name="hide">"Masquer"</string>
+    <string name="hide">"Masquer la barre"</string>
     <string name="undo">"Annuler"</string>
     <string name="redo">"Rétablir"</string>
     <string name="saving">"Enregistrement…"</string>
@@ -168,4 +168,18 @@
     <string name="save_restored">"Impossible d’enregistrer ici. Le fichier précédent est conservé. Vous pouvez utiliser Enregistrer sous."</string>
     <string name="save_recovery">"Impossible de terminer l’enregistrement ou de restaurer la destination. Portylus conserve une copie du fichier précédent pour la récupérer."</string>
     <string name="support_message">"Portylus vous plaît ? Soutenez le projet."</string>
+    <string name="hide_short">"Masquer"</string>
+    <string name="search_text">"Rechercher du texte"</string>
+    <string name="search_placeholder">"Rechercher dans ce PDF"</string>
+    <string name="whole_words">"Mots entiers"</string>
+    <string name="previous_match">"Résultat précédent"</string>
+    <string name="next_match">"Résultat suivant"</string>
+    <string name="close_search">"Fermer la recherche"</string>
+    <string name="clear_search">"Effacer la recherche"</string>
+    <string name="searching">"Recherche…"</string>
+    <string name="search_no_matches">"Aucun résultat"</string>
+    <string name="search_no_text">"Ce PDF ne contient aucun texte à rechercher. Il peut être numérisé."</string>
+    <string name="search_error">"La recherche n’a pas pu être terminée."</string>
+    <string name="search_limited">"Seuls les premiers résultats sont affichés. Précisez la recherche."</string>
+    <string name="search_counter">"Résultat %1$d sur %2$d"</string>
 </resources>

@@ -21,6 +21,9 @@ Objetivo: **abrir, leer, anotar y guardar**. La especificación original está e
 - Los marcadores existentes se conservan en Bookmarks, sin migración destructiva.
 - Última carpeta, orden por nombre/fecha y regreso desde el documento.
 - Lectura integrada con desplazamiento vertical, zoom y número de página.
+- Buscar texto con la lupa del lector o Más opciones → Buscar texto. Busca fragmentos por defecto; Palabras completas limita la coincidencia a palabras independientes. Sin distinción de mayúsculas, con soporte Unicode, acentos, ligaduras y frases.
+- Coincidencias temporales en amarillo y resultado activo en naranja, contador y anterior/siguiente con recorrido circular por todas las páginas. La búsqueda sustituye temporalmente la barra de anotación, se cancela al cambiar el texto y conserva sus resultados al girar.
+- Ocultar barra tiene icono de panel y etiqueta visible; al ocultarla aparece el botón con texto Mostrar barra. Los trazos pendientes se conservan.
 - Barra del lector adaptativa: en móvil, una fila compacta para nombre y acciones, y otra para las seis herramientas principales sin desplazamiento horizontal. En tablet mantiene una sola fila.
 - Iconos con estado activo en cian, nombres accesibles y ayuda al mantener pulsado. El título completo también se puede consultar manteniendo pulsado.
 - Las herramientas y acciones mantienen objetivos táctiles de 48 dp. En móvil, la muestra de color abre los estilos de la herramienta activa; con Goma activa muestra sus opciones. Más opciones conserva acceso a ambos editores de estilos.
@@ -62,14 +65,13 @@ La [validación inicial del motor](docs/VALIDACION.md) se conserva como evidenci
 - Ko-fi: enlace discreto con el símbolo oficial solo en Ajustes, acompañado de «¿Te gusta Portylus? Apoya el proyecto.».
 - Textos legales originales conservados, con aviso localizado cuando corresponde.
 
-La corrección del 26/10 se prepara como 0.1.2 / código 16. El AAB desactiva la
-separación por idioma para incluir ES/EN/FR en cada instalación de Google Play:
-el selector funciona sin descargar traducciones. La prueba anterior con APK
-completo no comprobaba esa división de idiomas. El usuario confirmó la actualización
-desde Play y notificó el fallo en su móvil.
-APK y AAB se firman con la clave local de subida. El enlace de fuentes apunta a
-la descarga prevista de v0.1.2, pendiente de publicación antes de distribuirla.
-Los artefactos históricos se conservan. Ver [corrección y pruebas](docs/VALIDACION_v0.1.2.md).
+La revisión del 27/10 se prepara como 0.1.3 / código 17, con búsqueda y controles
+de barra más claros. Mantiene los tres idiomas incluidos en todas las instalaciones
+de Play y Ko-fi solo en Ajustes. La 0.1.2 / 16 está publicada en Alpha desde el
+26/10 a las 12:03 según Play Console; sus fuentes ya están publicadas.
+La nueva entrega mantiene la clave de subida y su propio archivo de fuentes.
+No se han publicado anuncios ni mensajes en grupos o foros.
+Ver [validación de 0.1.3](docs/VALIDACION_v0.1.3.md).
 Evidencia funcional: [validación móvil](docs/VALIDACION_MOVIL_IDIOMAS.md).
 Subida y reclutamiento: [prueba cerrada](docs/play/PRUEBA_CERRADA.md).
 
@@ -108,12 +110,12 @@ con la contraseña protegida por DPAPI del usuario de Windows. Consulta [Firma y
 
 ## Versionado y GitHub
 
-Versión preparada: **v0.1.2**, código Android **16**, paquete **`com.gtavoapps.portylus`**.
-Entrega y comprobaciones: [VALIDACION_v0.1.2.md](docs/VALIDACION_v0.1.2.md).
+Versión preparada: **v0.1.3**, código Android **17**, paquete **`com.gtavoapps.portylus`**.
+Entrega y comprobaciones: [VALIDACION_v0.1.3.md](docs/VALIDACION_v0.1.3.md).
 `version.properties` fija la versión y el código Android para las compilaciones locales y CI,
 sin sufijos de desarrollo ni etiquetas de funciones. Los commits y las recompilaciones no avanzan la versión.
 
-La nueva entrega preparada usa `versionName=0.1.2`, `versionCode=16`. Las entregas anteriores 0.1.0 / 14 y 0.1.1 / 15 se conservan.
+La nueva entrega preparada usa `versionName=0.1.3`, `versionCode=17`. Todas las entregas anteriores se conservan.
 A partir de esa entrega, el último bloque recorre de 0 a 9 y después pasa al siguiente:
 `0.1.0 → 0.1.1 → … → 0.1.9 → 0.2.0`. No se continuará con `0.0.14`.
 El código Android siempre aumenta una unidad por entrega; las recompilaciones no lo avanzan.

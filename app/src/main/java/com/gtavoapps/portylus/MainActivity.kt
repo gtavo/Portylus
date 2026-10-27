@@ -54,6 +54,9 @@ import com.gtavoapps.portylus.ui.PortylusTheme
 import com.gtavoapps.portylus.ui.PortylusBrand
 import com.gtavoapps.portylus.ui.SettingsDialog
 import com.gtavoapps.portylus.ui.LegalDialog
+import com.gtavoapps.portylus.ui.SearchBar
+import com.gtavoapps.portylus.ui.ToolbarVisibilityAction
+import androidx.compose.foundation.layout.imePadding
 import com.gtavoapps.portylus.ui.ReaderToolbar
 import com.gtavoapps.portylus.ui.ToolbarAction
 import com.gtavoapps.portylus.ui.StyleBadge
@@ -184,8 +187,15 @@ class MainActivity : ComponentActivity() {
         if (model.pendingExternalUri != null && !model.opening && !model.saving && document?.pen?.isDirty != true)
             model.openPendingPdf()
     }
+    fun openSearch() {
+        if (document == null || model.saving) return
+        reader?.cancelInteraction()
+        penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
+        moreActions = false; toolbarVisible = true
+        model.search.open(document.session)
+    }
     BackHandler(enabled = document != null || model.opening || model.location != null) {
-        if (model.saving) Unit else if (model.opening) model.cancelOpening() else if (document != null) requestClose() else model.up()
+        if (model.search.state.open) model.search.close() else if (model.saving) Unit else if (model.opening) model.cancelOpening() else if (document != null) requestClose() else model.up()
     }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
@@ -207,6 +217,7 @@ class MainActivity : ComponentActivity() {
                 }, expandedHeight = 56.dp,
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface))
             }
+            else if (model.search.state.open) SearchBar(model.search)
             else if (toolbarVisible) ReaderToolbar(document.name, model.saving, ::requestClose,
                 tools = { compact ->
                     ToolbarAction(if (penEnabled) strings.getString(R.string.pen_active) else strings.getString(R.string.pen), selected = penEnabled,
@@ -244,10 +255,12 @@ class MainActivity : ComponentActivity() {
                     }
                     if (eraserEnabled) ToolbarAction(strings.getString(R.string.eraser_options), enabled = !model.saving,
                         onClick = { showEraserOptions = true }) { ActionIcon("settings") }
-                    ToolbarAction(strings.getString(R.string.hide), enabled = !model.saving, onClick = {
+                    ToolbarVisibilityAction(enabled = !model.saving, onClick = {
                         eraserEnabled = false; penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; toolbarVisible = false
-                    }) { ActionIcon("hide") }
+                    })
                 }, actions = { compact ->
+                    ToolbarAction(strings.getString(R.string.search_text), enabled = !model.saving,
+                        onClick = ::openSearch) { ActionIcon("search") }
                     ToolbarAction(strings.getString(R.string.undo), enabled = document.pen.canUndo && !model.saving, onClick = {
                         reader?.cancelInteraction(); document.pen.undo()
                     }) { ActionIcon("undo", document.pen.canUndo && !model.saving) }
@@ -264,6 +277,8 @@ class MainActivity : ComponentActivity() {
                     Box {
                         ToolbarAction(strings.getString(R.string.more), enabled = !model.saving, onClick = { moreActions = true }) { ActionIcon("more") }
                         DropdownMenu(expanded = moreActions, onDismissRequest = { moreActions = false }) {
+                            DropdownMenuItem(text = { Text(strings.getString(R.string.search_text)) },
+                                leadingIcon = { ActionIcon("search") }, onClick = ::openSearch)
                             DropdownMenuItem(text = { Text(strings.getString(R.string.settings)) },
                                 onClick = { moreActions = false; reader?.cancelInteraction(); settingsVisible = true })
                             DropdownMenuItem(text = { Text(strings.getString(R.string.pen_styles)) },
@@ -280,7 +295,7 @@ class MainActivity : ComponentActivity() {
         },
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(Modifier.fillMaxSize().padding(padding).then(if (model.search.state.open) Modifier.imePadding() else Modifier)) {
             if (document == null) BrowserScreen(model) {
                 treePicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
@@ -294,6 +309,8 @@ class MainActivity : ComponentActivity() {
                         onError = { error -> model.reportError(error) }
                         onTextSelectionChanged = { selectedText = it }
                     } }, update = {
+                        val search = model.search.state
+                        it.showSearch(search.matches, search.selected, search.navigation)
                         it.editingLocked = model.saving
                         it.annotationRevision = document.pen.revision
                         it.fingerWriting = model.fingerWriting
@@ -328,7 +345,12 @@ class MainActivity : ComponentActivity() {
                     style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color.White)
                 if (!toolbarVisible) Box(Modifier.align(Alignment.TopEnd).padding(8.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), RoundedCornerShape(24.dp))) {
-                    ToolbarAction(strings.getString(R.string.show_toolbar), onClick = { toolbarVisible = true }) { ActionIcon("show") }
+                    TextButton(onClick = { toolbarVisible = true }, modifier = Modifier.semantics {
+                        contentDescription = strings.getString(R.string.show_toolbar)
+                    }) {
+                        ActionIcon("show")
+                        Text(strings.getString(R.string.show_toolbar), Modifier.padding(start = 6.dp))
+                    }
                 }
             }
             if (model.opening || model.saving) CircularProgressIndicator(Modifier.align(Alignment.Center))

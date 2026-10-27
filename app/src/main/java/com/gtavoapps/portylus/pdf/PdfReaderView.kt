@@ -3,6 +3,7 @@ package com.gtavoapps.portylus.pdf
 import com.gtavoapps.portylus.R
 import android.content.Context
 import android.annotation.SuppressLint
+import androidx.core.graphics.withClip
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -88,6 +89,13 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
     private var selectionRequests: Channel<SelectionRequest>? = null
     private var selectionRevision = 0L
     internal val isDocumentReady: Boolean get() = sizes.isNotEmpty()
+    private var searchMatches = emptyList<SearchMatch>()
+    private var searchByPage = emptyMap<Int, List<SearchMatch>>()
+    internal var activeSearchMatch: SearchMatch? = null; private set
+    internal val searchHighlightCount: Int get() = searchMatches.size
+    private var searchNavigation = Long.MIN_VALUE
+    private var pendingSearch: SearchMatch? = null
+    private val searchPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var scope: CoroutineScope? = null
     private var sizes: List<PageSize> = emptyList()
     private var tops = FloatArray(0)
@@ -245,7 +253,57 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
             currentPage = it
             onPageChanged(it + 1)
         }
+        focusSearch()
     }
+    /** Updates an overlay only; search can never become a saved annotation. */
+    fun showSearch(matches: List<SearchMatch>, selected: Int, navigation: Long) {
+        if (searchMatches !== matches) {
+            searchMatches = matches
+            searchByPage = matches.groupBy { it.page }
+        }
+        activeSearchMatch = matches.getOrNull(selected)
+        if (navigation != searchNavigation) {
+            searchNavigation = navigation
+            pendingSearch = activeSearchMatch
+            focusSearch()
+        }
+        if (matches.isEmpty()) pendingSearch = null
+        invalidate()
+    }
+    private fun focusSearch() {
+        val match = pendingSearch ?: return
+        if (width <= 0 || height <= 0 || match.page !in sizes.indices) return
+        val points = match.quads.flatMap { listOf(it.upperLeft, it.upperRight, it.lowerLeft, it.lowerRight) }
+        if (points.isEmpty()) return
+        val size = sizes[match.page]
+        val scale = width * zoom / size.width
+        val x = (points.minOf { it.x } + points.maxOf { it.x }) / 2
+        val y = (points.minOf { it.y } + points.maxOf { it.y }) / 2
+        scroller.forceFinished(true)
+        offsetY = tops[match.page] * zoom + (y - size.originY) * scale - height * 0.35f
+        panX = width / 2f - (x - size.originX) * scale
+        clamp()
+        pendingSearch = null
+        currentPage = match.page
+        onPageChanged(match.page + 1)
+        invalidate()
+    }
+    private fun drawSearch(canvas: Canvas, page: PagePlacement) {
+        val hits = searchByPage[page.page] ?: return
+        canvas.withClip(page.left, page.top, page.right, page.bottom) {
+        val path = Path()
+        for (hit in hits) {
+            searchPaint.color = if (hit === activeSearchMatch) 0x88ff8a24.toInt() else 0x55ffd54f
+            for (quad in hit.quads) {
+                val points = listOf(quad.upperLeft, quad.upperRight, quad.lowerRight, quad.lowerLeft).map(page::toScreen)
+                path.reset(); path.moveTo(points[0].x, points[0].y)
+                points.drop(1).forEach { path.lineTo(it.x, it.y) }
+                path.close(); canvas.drawPath(path, searchPaint)
+            }
+        }
+        }
+    }
+
     private fun maxOffset() = (contentHeight * zoom - height).coerceAtLeast(0f)
     private fun clamp() {
         offsetY = offsetY.coerceIn(0f, maxOffset())
@@ -283,6 +341,7 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
             if (rendered?.requestedWidth != requestedWidth) requestPage(index, requestedWidth)
             drawInk(canvas, placement(index))
             drawTextSelection(canvas, placement(index))
+            drawSearch(canvas, placement(index))
             val area = minOf(top + pageHeight, height.toFloat()) - maxOf(top, 0f)
             if (area > bestArea) { bestArea = area; bestPage = index }
         }

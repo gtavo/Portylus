@@ -46,6 +46,7 @@ data class OpenPdf(var name: String, val file: File, val session: PdfSession, va
 enum class AfterSave { STAY, CLOSE, OPEN_PENDING }
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
+    val search = DocumentSearch(viewModelScope)
     private val strings = application
     private val readerPreferences = com.gtavoapps.portylus.preferences.ReaderPreferences(application)
     var fingerWriting by mutableStateOf(readerPreferences.fingerWriting); private set
@@ -392,6 +393,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun closePdf() {
         if (saving) return
         val opened = document ?: return
+        search.close()
         document = null
         viewModelScope.launch(Dispatchers.IO + NonCancellable) { closeDocument(opened) }
     }
@@ -513,6 +515,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         try { opened.session.close() } finally { opened.file.delete() }
     }
     override fun onCleared() {
+        search.close()
         openJob?.cancel()
         document?.let(::closeDocument)
     }

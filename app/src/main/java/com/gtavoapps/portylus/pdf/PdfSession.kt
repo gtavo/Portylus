@@ -69,6 +69,25 @@ class PdfSession private constructor(private val document: PDFDocument, private 
         return TextSelection(index, copied, text.highlight(a, b).orEmpty().map { it.coordinates() })
     }
 
+    @Synchronized fun searchText(index: Int, query: String, wholeWords: Boolean,
+        limit: Int = 5000): PageSearchResult = withPage(index) { page ->
+        val text = page.toStructuredText()
+        try {
+            val glyphs = ArrayList<SearchGlyph>()
+            for (block in text.blocks) {
+                for (line in block.lines) {
+                    for (char in line.chars) {
+                        val q = char.quad
+                        glyphs.add(SearchGlyph(char.c, PageQuad(PagePoint(q.ul_x, q.ul_y),
+                            PagePoint(q.ur_x, q.ur_y), PagePoint(q.ll_x, q.ll_y), PagePoint(q.lr_x, q.lr_y))))
+                    }
+                    glyphs.add(SearchGlyph(' '.code, null))
+                }
+            }
+            TextSearch.find(index, glyphs, query, wholeWords, limit)
+        } finally { text.destroy() }
+    }
+
     private fun clearTextCache() {
         structuredText?.destroy()
         structuredText = null

@@ -114,7 +114,7 @@ class MobileSettingsTest {
             screenshot("reader-es")
             // Primary tools are on-screen simultaneously and below the document controls on phones.
             val save = Rect().also { visible("Guardar").getBoundsInScreen(it) }
-            for (label in listOf("Bolígrafo", "Fluorescente", "Seleccionar texto", "Goma", "Ocultar")) {
+            for (label in listOf("Bolígrafo", "Fluorescente", "Seleccionar texto", "Goma", "Ocultar barra")) {
                 val bounds = Rect().also { visible(label).getBoundsInScreen(it) }
                 assertTrue(label, bounds.width() >= 47 * context.resources.displayMetrics.density)
                 if (context.resources.configuration.screenWidthDp < 600) assertTrue(label, bounds.top >= save.bottom)

@@ -78,11 +78,26 @@ import androidx.compose.ui.unit.dp
             }
             "hide", "show" -> {
                 val path=Path().apply {
-                    val start=if(kind=="hide") 15f else 9f
-                    val end=if(kind=="hide") 9f else 15f
-                    moveTo(5f*u,start*u);lineTo(12f*u,end*u);lineTo(19f*u,start*u)
-                    moveTo(4f*u,3f*u);lineTo(20f*u,3f*u)
+                    moveTo(3f*u,4f*u);lineTo(21f*u,4f*u);lineTo(21f*u,20f*u);lineTo(3f*u,20f*u);close()
+                    moveTo(3f*u,8f*u);lineTo(21f*u,8f*u)
+                    val a=if(kind=="hide") 16f else 12f
+                    val b=if(kind=="hide") 12f else 16f
+                    moveTo(8f*u,a*u);lineTo(12f*u,b*u);lineTo(16f*u,a*u)
                 }
+                drawPath(path,color,style=line)
+            }
+            "search" -> {
+                drawCircle(color,6.5f*u,Offset(10f*u,10f*u),style=line)
+                drawLine(color,Offset(15f*u,15f*u),Offset(21f*u,21f*u),strokeWidth=1.8f*u,cap=StrokeCap.Round)
+            }
+            "close" -> {
+                drawLine(color,Offset(6f*u,6f*u),Offset(18f*u,18f*u),strokeWidth=1.8f*u,cap=StrokeCap.Round)
+                drawLine(color,Offset(18f*u,6f*u),Offset(6f*u,18f*u),strokeWidth=1.8f*u,cap=StrokeCap.Round)
+            }
+            "previous", "next" -> {
+                val a=if(kind=="previous") 15f else 9f
+                val b=if(kind=="previous") 9f else 15f
+                val path=Path().apply { moveTo(6f*u,a*u);lineTo(12f*u,b*u);lineTo(18f*u,a*u) }
                 drawPath(path,color,style=line)
             }
             "save" -> {

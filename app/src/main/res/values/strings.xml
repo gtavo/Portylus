@@ -13,7 +13,7 @@
     <string name="eraser_active">"Goma activa"</string>
     <string name="eraser">"Goma"</string>
     <string name="eraser_options">"Opciones de goma"</string>
-    <string name="hide">"Ocultar"</string>
+    <string name="hide">"Ocultar barra"</string>
     <string name="undo">"Deshacer"</string>
     <string name="redo">"Rehacer"</string>
     <string name="saving">"Guardando…"</string>
@@ -168,4 +168,18 @@
     <string name="save_restored">"No se ha podido guardar aquí. El archivo anterior se conserva. Puedes usar Guardar como."</string>
     <string name="save_recovery">"No se ha podido completar el guardado ni restaurar el destino. Portylus conserva una copia del archivo anterior para recuperarla."</string>
     <string name="support_message">"¿Te gusta Portylus? Apoya el proyecto."</string>
+    <string name="hide_short">"Ocultar"</string>
+    <string name="search_text">"Buscar texto"</string>
+    <string name="search_placeholder">"Buscar en el PDF"</string>
+    <string name="whole_words">"Palabras completas"</string>
+    <string name="previous_match">"Coincidencia anterior"</string>
+    <string name="next_match">"Coincidencia siguiente"</string>
+    <string name="close_search">"Cerrar búsqueda"</string>
+    <string name="clear_search">"Borrar búsqueda"</string>
+    <string name="searching">"Buscando…"</string>
+    <string name="search_no_matches">"Sin coincidencias"</string>
+    <string name="search_no_text">"Este PDF no tiene texto para buscar. Puede ser un escaneo."</string>
+    <string name="search_error">"No se ha podido completar la búsqueda."</string>
+    <string name="search_limited">"Se muestran las primeras coincidencias. Concreta la búsqueda."</string>
+    <string name="search_counter">"Coincidencia %1$d de %2$d"</string>
 </resources>

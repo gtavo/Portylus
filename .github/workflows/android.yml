@@ -34,6 +34,8 @@ jobs:
   native-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      ANDROID_USER_HOME: ${{ runner.temp }}/portylus-android-user
     steps:
       - uses: actions/checkout@v4
         with:
@@ -76,11 +78,11 @@ jobs:
             timeout 10m ./gradlew connectedDebugAndroidTest --no-daemon --console=plain
             timeout 30s adb shell wm size 360x800
             timeout 30s adb shell wm density 160
-            timeout 4m ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.gtavoapps.portylus.LanguageDeliveryTest,com.gtavoapps.portylus.MobileSettingsTest,com.gtavoapps.portylus.PenInputTest#responsiveToolbarKeepsActionsVisibleAndAllPrimaryToolsReachable --no-daemon --console=plain
+            timeout 4m ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.gtavoapps.portylus.SearchWorkflowTest,com.gtavoapps.portylus.PdfSearchTest,com.gtavoapps.portylus.LanguageDeliveryTest,com.gtavoapps.portylus.MobileSettingsTest,com.gtavoapps.portylus.PenInputTest#responsiveToolbarKeepsActionsVisibleAndAllPrimaryToolsReachable --no-daemon --console=plain
             # A full APK contains every locale and cannot detect Play language-split bugs.
             timeout 3m ./gradlew bundleDebug --no-daemon --console=plain
             java -jar "$RUNNER_TEMP/bundletool.jar" get-device-spec --output="$RUNNER_TEMP/device.json"
-            java -jar "$RUNNER_TEMP/bundletool.jar" build-apks --bundle=app/build/outputs/bundle/debug/app-debug.aab --output="$RUNNER_TEMP/device.apks" --device-spec="$RUNNER_TEMP/device.json" --ks="$HOME/.android/debug.keystore" --ks-key-alias=androiddebugkey --ks-pass=pass:android --key-pass=pass:android
+            java -jar "$RUNNER_TEMP/bundletool.jar" build-apks --bundle=app/build/outputs/bundle/debug/app-debug.aab --output="$RUNNER_TEMP/device.apks" --device-spec="$RUNNER_TEMP/device.json" --ks="$ANDROID_USER_HOME/debug.keystore" --ks-key-alias=androiddebugkey --ks-pass=pass:android --key-pass=pass:android
             java -jar "$RUNNER_TEMP/bundletool.jar" install-apks --apks="$RUNNER_TEMP/device.apks"
             adb shell svc wifi disable
             adb shell svc data disable

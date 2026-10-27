@@ -465,13 +465,13 @@ class PenInputTest {
             assertTrue(title.width() <= 240 * instrumentation.targetContext.resources.displayMetrics.density)
             if (instrumentation.targetContext.resources.configuration.screenWidthDp >= 800) {
                 for (label in listOf("Atrás","Bolígrafo","Estilos del bolígrafo","Fluorescente",
-                    "Estilos del fluorescente","Seleccionar texto","Goma","Ocultar","Más opciones")) {
+                    "Estilos del fluorescente","Seleccionar texto","Goma","Ocultar barra","Más opciones")) {
                     assertTrue(label, kotlin.math.abs(bounds(label).centerY() - undo.centerY()) <= 3)
                 }
                 assertTrue(title.right <= bounds("Bolígrafo").left)
-                assertTrue(bounds("Ocultar").right <= undo.left)
+                assertTrue(bounds("Ocultar barra").right <= undo.left)
             } else if (instrumentation.targetContext.resources.configuration.screenWidthDp < 600) {
-                for (label in listOf("Bolígrafo", "Fluorescente", "Seleccionar texto", "Goma", "Ocultar")) {
+                for (label in listOf("Bolígrafo", "Fluorescente", "Seleccionar texto", "Goma", "Ocultar barra")) {
                     assertTrue(label, bounds(label).top >= save.bottom)
                     assertTrue(label, bounds(label).width() >= 47 * instrumentation.targetContext.resources.displayMetrics.density)
                 }
@@ -488,7 +488,7 @@ class PenInputTest {
             screenshot("barra-goma")
             click("Opciones de goma"); click("Cerrar")
             await { reader.view.hasWindowFocus() }
-            revealTool("Ocultar"); click("Ocultar")
+            revealTool("Ocultar barra"); click("Ocultar barra")
             await { !reader.view.eraserEnabled }
             click("Mostrar barra")
             revealTool("Bolígrafo")
@@ -899,7 +899,7 @@ class PenInputTest {
             reader.send(MotionEvent.ACTION_DOWN, finger(100f, 300f))
             reader.send(MotionEvent.ACTION_UP, finger(400f, 300f), flags = MotionEvent.FLAG_CANCELED)
             reader.send(MotionEvent.ACTION_DOWN, finger(100f, 300f))
-            click("Ocultar"); await { !reader.view.highlighterEnabled }
+            click("Ocultar barra"); await { !reader.view.highlighterEnabled }
             reader.send(MotionEvent.ACTION_UP, finger(400f, 300f))
             assertTrue(reader.strokes().isEmpty())
         }
@@ -989,7 +989,7 @@ class PenInputTest {
     @Test fun hidingToolbarAndLeavingNeverSilentlyDiscardsCompletedInk() {
         Reader().use { reader ->
             reader.enable(); reader.write()
-            click("Ocultar")
+            click("Ocultar barra")
             await { !reader.view.penEnabled }
             assertEquals(1, reader.strokes().size)
             click("Mostrar barra")
