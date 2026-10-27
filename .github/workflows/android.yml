@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      ANDROID_USER_HOME: ${{ runner.temp }}/portylus-android-user
+      ANDROID_USER_HOME: ${{ github.workspace }}/.ci-android-user
     steps:
       - uses: actions/checkout@v4
         with:
