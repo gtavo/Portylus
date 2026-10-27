@@ -84,6 +84,8 @@ jobs:
             java -jar "$RUNNER_TEMP/bundletool.jar" get-device-spec --output="$RUNNER_TEMP/device.json"
             java -jar "$RUNNER_TEMP/bundletool.jar" build-apks --bundle=app/build/outputs/bundle/debug/app-debug.aab --output="$RUNNER_TEMP/device.apks" --device-spec="$RUNNER_TEMP/device.json" --ks="$ANDROID_USER_HOME/debug.keystore" --ks-key-alias=androiddebugkey --ks-pass=pass:android --key-pass=pass:android
             java -jar "$RUNNER_TEMP/bundletool.jar" install-apks --apks="$RUNNER_TEMP/device.apks"
+            # Gradle removes the test package after connectedDebugAndroidTest.
+            adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell svc wifi disable
             adb shell svc data disable
             timeout 2m adb shell am instrument -w -r -e class com.gtavoapps.portylus.LanguageDeliveryTest com.gtavoapps.portylus.test/com.gtavoapps.portylus.PortylusTestRunner | tee app/build/reports/androidTests/play-languages.log
