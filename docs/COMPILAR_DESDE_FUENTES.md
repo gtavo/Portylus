@@ -2,8 +2,8 @@
 
 ## Obtener la versión completa
 
-Los enlaces de v0.1.3 están preparados y pendientes de publicación. La copia local
-completa está en artifacts/Portylus-v0.1.3-source.zip.
+Las fuentes completas v0.1.3 están publicadas en la release indicada debajo.
+La copia local está en artifacts/Portylus-v0.1.3-source.zip.
 
 Para v0.1.3 / código 17 / com.gtavoapps.portylus descargar:
 

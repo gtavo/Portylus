@@ -65,11 +65,12 @@ La [validación inicial del motor](docs/VALIDACION.md) se conserva como evidenci
 - Ko-fi: enlace discreto con el símbolo oficial solo en Ajustes, acompañado de «¿Te gusta Portylus? Apoya el proyecto.».
 - Textos legales originales conservados, con aviso localizado cuando corresponde.
 
-La revisión del 27/10 se prepara como 0.1.3 / código 17, con búsqueda y controles
+La revisión del 27/10 es 0.1.3 / código 17, con búsqueda y controles
 de barra más claros. Mantiene los tres idiomas incluidos en todas las instalaciones
 de Play y Ko-fi solo en Ajustes. La 0.1.2 / 16 está publicada en Alpha desde el
 26/10 a las 12:03 según Play Console; sus fuentes ya están publicadas.
-La nueva entrega mantiene la clave de subida y su propio archivo de fuentes.
+La nueva entrega mantiene la clave de subida y su propio archivo de fuentes,
+ya publicado. Está enviada a revisión de Google en Alpha.
 No se han publicado anuncios ni mensajes en grupos o foros.
 Ver [validación de 0.1.3](docs/VALIDACION_v0.1.3.md).
 Evidencia funcional: [validación móvil](docs/VALIDACION_MOVIL_IDIOMAS.md).
@@ -110,7 +111,7 @@ con la contraseña protegida por DPAPI del usuario de Windows. Consulta [Firma y
 
 ## Versionado y GitHub
 
-Versión preparada: **v0.1.3**, código Android **17**, paquete **`com.gtavoapps.portylus`**.
+Versión enviada a revisión: **v0.1.3**, código Android **17**, paquete **`com.gtavoapps.portylus`**.
 Entrega y comprobaciones: [VALIDACION_v0.1.3.md](docs/VALIDACION_v0.1.3.md).
 `version.properties` fija la versión y el código Android para las compilaciones locales y CI,
 sin sufijos de desarrollo ni etiquetas de funciones. Los commits y las recompilaciones no avanzan la versión.

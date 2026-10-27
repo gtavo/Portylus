@@ -53,3 +53,22 @@ la ruta. La clave debug de CI es independiente de la firma release privada.
 
 No se han enviado mensajes ni anuncios a Google Groups, Reddit u otros foros.
 La creación/configuración del grupo queda pendiente para retomarla después.
+
+## Resultados de entrega
+
+- Compilación debug/release y AAB firmado correctos; 36 pruebas JVM, lint sin
+  errores y los 6 avisos UseKtx previos.
+- 46 pruebas Android en tablet 1280×800; 7 dirigidas de móvil en 360×800.
+- 4 pruebas en 320×800 con letra al 130 %: búsqueda, ajustes/idiomas y barra.
+- 3 pruebas sobre APK divididos del AAB release, generados para español y
+  ejecutados con Wi-Fi/datos desactivados: idiomas y motor de búsqueda real.
+- Firma APK/AAB y alineación ZIP/ELF 16 KiB verificadas; bundletool validate
+  correcto. Sin INTERNET ni permiso de almacenamiento global.
+- Pruebas y capturas locales: artifacts/validation/search-013/.
+
+El AAB se ha subido como 17 (0.1.3) a Alpha. La revisión de Google y el resultado
+remoto de CI se registran en docs/play/ESTADO_v0.1.3.md al cerrar la entrega.
+
+CI remoto completo correcto: https://github.com/gtavo/Portylus/actions/runs/40578314447
+Incluye las 46 pruebas de tablet, 7 de móvil y 2 de idiomas sobre APK de un AAB.
+Las correcciones de CI no alteran el binario enviado a Google.
