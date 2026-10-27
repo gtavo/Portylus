@@ -42,3 +42,23 @@ en docs/play/ESTADO_v0.1.4.md al cerrar la entrega.
 
 Se conservan los binarios y fuentes anteriores, además de la copia previa
 artifacts/Portylus-before-page-014.zip. Sin anuncios ni mensajes en grupos o foros.
+
+## Resultados finales
+
+Compilación y lint correctos: 36 pruebas JVM, 0 errores de lint y 6 avisos
+UseKtx previos. 48 pruebas Android en tablet, 9 dirigidas en móvil y 4 con
+pantalla de 320 dp y letra al 130 %, todas correctas. Otras 3 pruebas sobre
+los APK derivados del AAB release sin conexión verifican idiomas y búsqueda.
+Firma, permisos y alineación 16 KiB correctos; 188 claves ES/EN/FR equivalentes.
+
+Capturas revisadas en 360 dp y 320 dp/letra 130 %. El selector muestra rango,
+campo numérico, Cancelar e Ir sin recortes. Se ha comprobado el salto real
+al contenido de la página, además de la etiqueta del contador.
+
+CI remoto completo correcto:
+https://github.com/gtavo/Portylus/actions/runs/40602186882
+
+Fuentes completas publicadas y descarga anónima verificada. Envío de Alpha
+18 (0.1.4) confirmado: en comprobaciones rápidas de Google, con revisión
+posterior y publicación automática al aprobarse. Detalle y hashes en
+docs/play/ESTADO_v0.1.4.md. Sin anuncios ni mensajes en grupos.
