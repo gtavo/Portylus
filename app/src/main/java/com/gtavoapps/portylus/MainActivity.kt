@@ -4,13 +4,13 @@ import com.gtavoapps.portylus.R
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.net.Uri
+import android.provider.DocumentsContract
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.SystemBarStyle
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -51,6 +51,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.text.font.FontWeight
 import com.gtavoapps.portylus.ui.PortylusTheme
+import com.gtavoapps.portylus.ui.PortylusSystemBars
+import androidx.compose.ui.graphics.toArgb
 import com.gtavoapps.portylus.ui.PortylusBrand
 import com.gtavoapps.portylus.ui.SettingsDialog
 import com.gtavoapps.portylus.ui.LegalDialog
@@ -95,13 +97,9 @@ class MainActivity : ComponentActivity() {
     private val model: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val barColor = android.graphics.Color.rgb(7, 26, 51)
-        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(barColor),
-            navigationBarStyle = SystemBarStyle.dark(barColor))
-        window.isNavigationBarContrastEnforced = true
-        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = false
+        enableEdgeToEdge()
         if (savedInstanceState == null) model.receivePdf(intent)
-        setContent { PortylusTheme { PdfApp(model) } }
+        setContent { PortylusTheme(model.appearance) { PortylusSystemBars(); PdfApp(model) } }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -130,6 +128,24 @@ class MainActivity : ComponentActivity() {
         if (result.resultCode == Activity.RESULT_OK) result.data?.let { data ->
             data.data?.let { uri -> model.retainDocumentPermission(uri, data.flags); model.openPdf(uri) }
         }
+    }
+    fun openPdfPicker(initialUri: Uri? = null) {
+        pdfPicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE); type = "application/pdf"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+            initialUri?.let { putExtra(DocumentsContract.EXTRA_INITIAL_URI, it) }
+        })
+    }
+    // A location hint for DocumentsUI, never a grant to the protected Download root.
+    val downloadsUri = remember {
+        DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Download")
+    }
+    fun chooseFolder(initialUri: Uri? = null) {
+        treePicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+            initialUri?.let { putExtra(DocumentsContract.EXTRA_INITIAL_URI, it) }
+        })
     }
     var exportingRecovery by rememberSaveable { mutableStateOf(false) }
     val savePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -168,6 +184,13 @@ class MainActivity : ComponentActivity() {
     var closeRequest by remember(document?.file?.name) { mutableStateOf<AfterSave?>(null) }
     var moreActions by remember(document?.file?.name) { mutableStateOf(false) }
     var stylesFor by remember(document?.file?.name) { mutableStateOf<AnnotationKind?>(null) }
+    fun navigateToPage(target: Int) {
+        if (model.saving || document == null || target !in 1..document.session.pageCount) return
+        val view = reader ?: return
+        model.search.close()
+        penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
+        view.goToPage(target)
+    }
     fun requestClose() {
         if (model.saving) return
         reader?.cancelInteraction()
@@ -182,6 +205,8 @@ class MainActivity : ComponentActivity() {
         penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
     }
     val currentView = androidx.compose.ui.platform.LocalView.current
+    val workspaceColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
+    val workspaceContentColor = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
     androidx.compose.runtime.DisposableEffect(currentView, document != null, model.keepAwake) {
         currentView.keepScreenOn = document != null && model.keepAwake
         onDispose { currentView.keepScreenOn = false }
@@ -211,12 +236,11 @@ class MainActivity : ComponentActivity() {
                     ToolbarAction(strings.getString(R.string.settings), onClick = { settingsVisible = true }) {
                         ActionIcon("settings")
                     }
-                    ToolbarAction(strings.getString(R.string.open_pdf), enabled = !model.loading && !model.opening, onClick = {
-                        pdfPicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                            addCategory(Intent.CATEGORY_OPENABLE); type = "application/pdf"
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                        })
-                    }) { ActionIcon("open") }
+                    TextButton(enabled = !model.loading && !model.opening,
+                        onClick = { openPdfPicker() }, modifier = Modifier.heightIn(min = 48.dp)) {
+                        ActionIcon("open")
+                        Text(strings.getString(R.string.open_pdf), Modifier.padding(start = 6.dp), maxLines = 1)
+                    }
                 }, expandedHeight = 56.dp,
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface))
             }
@@ -299,12 +323,11 @@ class MainActivity : ComponentActivity() {
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).then(if (model.search.state.open) Modifier.imePadding() else Modifier)) {
-            if (document == null) BrowserScreen(model) {
-                treePicker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-                })
-            } else {
+            if (document == null) BrowserScreen(model,
+                authorize = { chooseFolder() },
+                openDownloads = { openPdfPicker(downloadsUri) },
+                addDownloadsFolder = { chooseFolder(downloadsUri) })
+            else {
                 key(document.file.name) {
                     AndroidView(factory = { context -> PdfReaderView(context, document.session, document.pen, document.lastPage).apply {
                         reader = this
@@ -312,6 +335,8 @@ class MainActivity : ComponentActivity() {
                         onError = { error -> model.reportError(error) }
                         onTextSelectionChanged = { selectedText = it }
                     } }, update = {
+                        it.workspaceColor = workspaceColor
+                        it.workspaceContentColor = workspaceContentColor
                         val search = model.search.state
                         it.showSearch(search.matches, search.selected, search.navigation)
                         it.editingLocked = model.saving
@@ -339,21 +364,34 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 androidx.compose.material3.Surface(
-                    onClick = { reader?.cancelInteraction(); pageJumpVisible = true },
-                    enabled = !model.saving && reader != null,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).heightIn(min = 48.dp)
-                        .semantics { contentDescription = strings.getString(R.string.page_counter, page, document.session.pageCount) },
-                    shape = RoundedCornerShape(8.dp), color = androidx.compose.ui.graphics.Color(0xe6071a33),
-                    contentColor = androidx.compose.ui.graphics.Color.White) {
-                    Row(Modifier.padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("$page / ${document.session.pageCount}", style = MaterialTheme.typography.labelMedium)
-                        ActionIcon("down", tint = androidx.compose.ui.graphics.Color.White)
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
+                    shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = MaterialTheme.colorScheme.onSurface) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ToolbarAction(strings.getString(R.string.previous_page),
+                            enabled = !model.saving && reader != null && page > 1,
+                            onClick = { navigateToPage(page - 1) }) { ActionIcon("left") }
+                        androidx.compose.material3.Surface(
+                            onClick = { reader?.cancelInteraction(); pageJumpVisible = true },
+                            enabled = !model.saving && reader != null,
+                            modifier = Modifier.heightIn(min = 48.dp).semantics {
+                                contentDescription = strings.getString(R.string.page_counter, page, document.session.pageCount)
+                            }, color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = MaterialTheme.colorScheme.onSurface) {
+                            Row(Modifier.padding(horizontal = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("$page / ${document.session.pageCount}", style = MaterialTheme.typography.labelMedium)
+                                ActionIcon("down")
+                            }
+                        }
+                        ToolbarAction(strings.getString(R.string.next_page),
+                            enabled = !model.saving && reader != null && page < document.session.pageCount,
+                            onClick = { navigateToPage(page + 1) }) { ActionIcon("right") }
                     }
                 }
                 if (document.pen.isDirty) Text(strings.getString(R.string.unsaved), Modifier.align(Alignment.BottomStart).padding(12.dp)
-                    .background(androidx.compose.ui.graphics.Color(0xe6071a33), RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.small)
                     .padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelMedium, color = androidx.compose.ui.graphics.Color.White)
+                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 if (!toolbarVisible) Box(Modifier.align(Alignment.TopEnd).padding(8.dp)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), RoundedCornerShape(24.dp))) {
                     TextButton(onClick = { toolbarVisible = true }, modifier = Modifier.semantics {
@@ -369,9 +407,7 @@ class MainActivity : ComponentActivity() {
     }
     if (pageJumpVisible && document != null) PageJumpDialog(page, document.session.pageCount,
         onGo = { target ->
-            model.search.close()
-            penEnabled = false; highlighterEnabled = false; textSelectionEnabled = false; eraserEnabled = false
-            reader?.goToPage(target)
+            navigateToPage(target)
             pageJumpVisible = false
         }, onDismiss = { pageJumpVisible = false })
     if (showEraserOptions && document != null) EraserDialog(eraserOptions,

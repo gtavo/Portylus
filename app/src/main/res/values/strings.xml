@@ -188,4 +188,17 @@
     <string name="page_jump_invalid">"Introduce un número entre 1 y %1$d."</string>
     <string name="go">"Ir"</string>
     <string name="page_counter">"Página %1$d de %2$d. Ir a la página."</string>
+    <string name="appearance">Apariencia</string>
+    <string name="appearance_choose">Cambiar apariencia</string>
+    <string name="language_choose">Cambiar idioma</string>
+    <string name="appearance_system">Seguir el sistema</string>
+    <string name="appearance_light">Claro</string>
+    <string name="appearance_dark">Oscuro</string>
+    <string name="previous_page">Página anterior</string>
+    <string name="next_page">Página siguiente</string>
+    <string name="downloads">Descargas</string>
+    <string name="downloads_help">¿Cómo añadir Descargas?</string>
+    <string name="downloads_explanation">Android no permite añadir la carpeta Descargas completa. Puedes crear o elegir una subcarpeta, por ejemplo Descargas/PDF, y añadirla a Mis carpetas. Para los PDF que ya están en Descargas, abre cada archivo desde el selector.</string>
+    <string name="add_downloads_subfolder">Añadir subcarpeta</string>
+    <string name="open_downloads_pdf">Abrir PDF de Descargas</string>
 </resources>

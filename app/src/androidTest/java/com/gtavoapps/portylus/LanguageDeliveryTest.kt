@@ -88,6 +88,7 @@ class LanguageDeliveryTest {
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
         var activity = launch()
         fun change(label: String, tag: String, title: String) {
+            click(activity.getString(R.string.language_choose))
             val monitor = instrumentation.addMonitor(MainActivity::class.java.name, null, false)
             try {
                 click(label)

@@ -2,6 +2,9 @@ package com.gtavoapps.portylus.ui
 
 import com.gtavoapps.portylus.R
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
@@ -17,14 +20,18 @@ fun EraserDialog(options: EraserOptions, onChange: (EraserOptions) -> Unit, onDi
     AlertDialog(onDismissRequest = onDismiss, title = { Text(strings.getString(R.string.eraser)) }, text = {
         Column {
             Text(strings.getString(R.string.erase_type))
-            FilterChip(selected = options.mode == EraserMode.PARTIAL,
+            FilterChip(selected = options.mode == EraserMode.PARTIAL, modifier = Modifier.heightIn(min = 48.dp),
+                leadingIcon = if (options.mode == EraserMode.PARTIAL) { { ActionIcon("check") } } else null,
                 onClick = { onChange(options.copy(mode = EraserMode.PARTIAL)) }, label = { Text(strings.getString(R.string.partial)) })
-            FilterChip(selected = options.mode == EraserMode.WHOLE,
+            FilterChip(selected = options.mode == EraserMode.WHOLE, modifier = Modifier.heightIn(min = 48.dp),
+                leadingIcon = if (options.mode == EraserMode.WHOLE) { { ActionIcon("check") } } else null,
                 onClick = { onChange(options.copy(mode = EraserMode.WHOLE)) }, label = { Text(strings.getString(R.string.whole_stroke)) })
             Text(strings.getString(R.string.erase_only))
-            FilterChip(selected = options.filter == AnnotationKind.PEN,
+            FilterChip(selected = options.filter == AnnotationKind.PEN, modifier = Modifier.heightIn(min = 48.dp),
+                leadingIcon = if (options.filter == AnnotationKind.PEN) { { ActionIcon("check") } } else null,
                 onClick = { onChange(options.copy(filter = AnnotationKind.PEN)) }, label = { Text(strings.getString(R.string.handwriting)) })
-            FilterChip(selected = options.filter == AnnotationKind.HIGHLIGHTER,
+            FilterChip(selected = options.filter == AnnotationKind.HIGHLIGHTER, modifier = Modifier.heightIn(min = 48.dp),
+                leadingIcon = if (options.filter == AnnotationKind.HIGHLIGHTER) { { ActionIcon("check") } } else null,
                 onClick = { onChange(options.copy(filter = AnnotationKind.HIGHLIGHTER)) }, label = { Text(strings.getString(R.string.highlights)) })
         }
     }, confirmButton = { TextButton(onClick = onDismiss) { Text(strings.getString(R.string.close)) } })

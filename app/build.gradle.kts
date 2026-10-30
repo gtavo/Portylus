@@ -13,7 +13,7 @@ val deliveryVersion = Properties().apply {
 }
 val deliveryName = requireNotNull(deliveryVersion.getProperty("versionName"))
 val deliveryCode = requireNotNull(deliveryVersion.getProperty("versionCode")).toInt()
-require(deliveryName.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+"))) { "Versión no válida: $deliveryName" }
+require(deliveryName.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+(?:_([2-9]|[1-9][0-9]+))?"))) { "Versión no válida: $deliveryName" }
 require(deliveryCode > 0) { "versionCode debe ser positivo." }
 
 val distribution = Properties().apply {

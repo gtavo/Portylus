@@ -76,16 +76,11 @@ import com.gtavoapps.portylus.annotations.InkStyle
         tooltip = { PlainTooltip { Text(label) } }, state = rememberTooltipState()) {
         val modifier = Modifier.size(48.dp).semantics { contentDescription = label }
         if (selected == null) IconButton(onClick = onClick, enabled = enabled, modifier = modifier) { content() }
-        else IconToggleButton(checked = selected, onCheckedChange = { onClick() }, enabled = enabled,
-            modifier = modifier.background(
-                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f) else Color.Transparent,
-                RoundedCornerShape(12.dp))) {
-            val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-            androidx.compose.runtime.CompositionLocalProvider(LocalContentColor provides
-                tint.copy(alpha = if (enabled) 1f else 0.38f)) {
-                content()
-            }
-        }
+        else FilledTonalIconToggleButton(checked = selected, onCheckedChange = { onClick() }, enabled = enabled,
+            modifier = modifier, colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer)) { content() }
     }
 }
 
@@ -96,12 +91,11 @@ import com.gtavoapps.portylus.annotations.InkStyle
     val label = strings.getString(R.string.hide)
     TooltipBox(positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text(label) } }, state = rememberTooltipState()) {
-        IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(48.dp)
+        IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.width(64.dp).height(48.dp)
             .semantics { contentDescription = label }) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ActionIcon("hide", enabled)
-                Text(strings.getString(R.string.hide_short), fontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp),
-                    lineHeight = androidx.compose.ui.unit.TextUnit(10f, androidx.compose.ui.unit.TextUnitType.Sp), maxLines = 1,
+                Text(strings.getString(R.string.hide_short), style = MaterialTheme.typography.labelSmall, maxLines = 1,
                     overflow = TextOverflow.Ellipsis)
             }
         }
@@ -112,6 +106,6 @@ import com.gtavoapps.portylus.annotations.InkStyle
     val color = Color(style.color)
     Box(Modifier.size(22.dp).background(color, CircleShape), contentAlignment = Alignment.Center) {
         Text((slot + 1).toString(), style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold, color = if (color.luminance() > 0.45f) Color(0xff071a33) else Color.White)
+            fontWeight = FontWeight.Medium, color = if (color.luminance() > 0.179f) Color.Black else Color.White)
     }
 }

@@ -40,6 +40,11 @@ import com.gtavoapps.portylus.annotations.InkEraser
 class PdfReaderView(context: Context, private val session: PdfSession, private val pen: PenSession,
     initialPage: Int = 1) : View(context) {
     private val strings = context
+    // Only the workspace changes theme. PDF pixels, ink colors and search marks remain unchanged.
+    var workspaceColor = Color.rgb(29, 33, 44)
+        set(value) { if (field != value) { field = value; invalidate() } }
+    var workspaceContentColor = Color.rgb(195, 203, 221)
+        set(value) { if (field != value) { field = value; invalidate() } }
     var fingerWriting = false
         set(value) { if (field != value) cancelStroke(); field = value }
     private var explicitPage: Int? = null
@@ -336,9 +341,10 @@ class PdfReaderView(context: Context, private val session: PdfSession, private v
     }
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(Color.rgb(6, 20, 38))
+        canvas.drawColor(workspaceColor)
         if (sizes.isEmpty()) {
-            paint.color = Color.LTGRAY; paint.textSize = 16 * resources.displayMetrics.density
+            paint.color = workspaceContentColor
+            paint.textSize = android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f, resources.displayMetrics)
             canvas.drawText(strings.getString(R.string.opening), gap * 2, gap * 4, paint)
             return
         }

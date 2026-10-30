@@ -79,8 +79,11 @@ class PenInputTest {
             val directDoc = android.provider.DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Download/test.pdf")
             assertEquals(positions.key(directDoc), positions.key(treeDoc))
             assertTrue(activity.window.isNavigationBarContrastEnforced)
-            assertFalse(main { androidx.core.view.WindowInsetsControllerCompat(activity.window, activity.window.decorView)
-                .isAppearanceLightNavigationBars })
+            val systemDark = activity.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+            assertEquals(!main { model.appearance }.usesDarkTheme(systemDark), main {
+                androidx.core.view.WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+                    .isAppearanceLightNavigationBars })
         } finally { main { model.closePdf(); activity.finish() }; instrumentation.waitForIdleSync() }
     }
 

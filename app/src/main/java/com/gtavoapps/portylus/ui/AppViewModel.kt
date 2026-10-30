@@ -17,6 +17,7 @@ import com.gtavoapps.portylus.explorer.SortOrder
 import com.gtavoapps.portylus.explorer.sortedEntries
 import com.gtavoapps.portylus.explorer.withoutRoot
 import com.gtavoapps.portylus.preferences.ReadingPositions
+import com.gtavoapps.portylus.preferences.AppAppearance
 import com.gtavoapps.portylus.pdf.PdfSession
 import com.gtavoapps.portylus.annotations.PenSession
 import com.gtavoapps.portylus.annotations.AnnotationKind
@@ -51,6 +52,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val readerPreferences = com.gtavoapps.portylus.preferences.ReaderPreferences(application)
     var fingerWriting by mutableStateOf(readerPreferences.fingerWriting); private set
     var keepAwake by mutableStateOf(readerPreferences.keepAwake); private set
+    var appearance by mutableStateOf(readerPreferences.appearance); private set
+
+    fun updateAppearance(value: AppAppearance) {
+        readerPreferences.setAppearance(value)
+        appearance = value
+    }
 
     fun updateFingerWriting(value: Boolean) {
         readerPreferences.setFingerWriting(value)

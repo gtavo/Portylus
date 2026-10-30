@@ -98,6 +98,7 @@ class MobileSettingsTest {
         }
         val original = source.readBytes()
         fun changeLanguage(label: String) {
+            click(activity.getString(R.string.language_choose))
             val monitor = instrumentation.addMonitor(MainActivity::class.java.name, null, false)
             try {
                 click(label)

@@ -188,4 +188,17 @@
     <string name="page_jump_invalid">"Saisissez un nombre entre 1 et %1$d."</string>
     <string name="go">"Aller"</string>
     <string name="page_counter">"Page %1$d sur %2$d. Aller à la page."</string>
+    <string name="appearance">Apparence</string>
+    <string name="appearance_choose">Changer l’apparence</string>
+    <string name="language_choose">Changer la langue</string>
+    <string name="appearance_system">Suivre le système</string>
+    <string name="appearance_light">Clair</string>
+    <string name="appearance_dark">Sombre</string>
+    <string name="previous_page">Page précédente</string>
+    <string name="next_page">Page suivante</string>
+    <string name="downloads">Téléchargements</string>
+    <string name="downloads_help">Comment ajouter Téléchargements ?</string>
+    <string name="downloads_explanation">Android ne permet pas d’ajouter tout le dossier Téléchargements. Créez ou choisissez un sous-dossier, par exemple Téléchargements/PDF, puis ajoutez-le à Mes dossiers. Pour les PDF déjà dans Téléchargements, ouvrez chaque fichier avec le sélecteur.</string>
+    <string name="add_downloads_subfolder">Ajouter un sous-dossier</string>
+    <string name="open_downloads_pdf">Ouvrir PDF téléchargé</string>
 </resources>

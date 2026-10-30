@@ -1,5 +1,21 @@
 # Portylus — identidad visual
 
+## Interfaz vigente · adaptación local del 30/10/2026
+
+La interfaz adopta Material 3 con azul y grises fríos y los modos Seguir el
+sistema, Claro y Oscuro. Los roles y pares de contraste se centralizan en
+`ui/PortylusTheme.kt`; la especificación y validación están en
+`docs/VALIDACION_DISENO_MATERIAL3.md`. Este esquema sustituye los colores
+de interfaz descritos en la referencia inicial de abajo.
+
+El símbolo, el icono adaptativo y sus archivos originales se conservan. También
+se conserva el explorador tipo Windows 11, incluidos el árbol, la ruta, la
+lista de detalles y sus acentos de carpeta/bookmark. No se alteran el color
+del papel ni los valores de tinta. En móvil, el lector usa las dos filas
+adaptativas existentes para mantener las herramientas a la vista.
+
+## Referencia inicial de la marca
+
 La P integra documento y lápiz. El azul/cian, las superficies navy y las curvas suaves relacionan
 Portylus con Docenda y Positio. El trazo ámbar distingue la anotación manual y aporta un acento propio.
 

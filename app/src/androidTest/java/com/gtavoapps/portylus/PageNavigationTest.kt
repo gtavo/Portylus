@@ -179,6 +179,128 @@ class PageNavigationTest {
         } finally { main { model.closePdf(); activity.finish() }; source.delete() }
     }
 
+    @Test fun arrowsRespectBoundsKeepZoomAndInkAndWorkWithHiddenToolbarAndSearch() {
+        val context = instrumentation.targetContext
+        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        val model = main { ViewModelProvider(activity)[AppViewModel::class.java] }
+        val source = fixture(3, shortLast = true)
+        val original = source.readBytes()
+        try {
+            await { !model.loading && model.stylesReady }
+            main { model.openPdf(Uri.fromFile(source)) }
+            await { reader(activity.window.decorView)?.isDocumentReady == true }
+            val document = main { requireNotNull(model.document) }
+            val view = main { requireNotNull(reader(activity.window.decorView)) }
+            disabled("Página anterior")
+            main { document.pen.add(Annotation(page = 0, kind = AnnotationKind.PEN,
+                points = listOf(PagePoint(30f, 70f), PagePoint(120f, 80f)))) }
+            // Use explicit finger events, as with real two-finger zoom input.
+            val center = main { view.width / 2f }
+            val span = main { maxOf(android.view.ViewConfiguration.get(context).scaledMinimumScalingSpan * 1.1f,
+                view.width * 0.35f) }
+            val downTime = SystemClock.uptimeMillis()
+            fun touch(action: Int, factor: Float, count: Int) {
+                val properties = Array(count) { index -> MotionEvent.PointerProperties().apply {
+                    id = index; toolType = MotionEvent.TOOL_TYPE_FINGER
+                } }
+                val coords = Array(count) { index -> MotionEvent.PointerCoords().apply {
+                    x = center + (if (index == 0) -1 else 1) * span * factor / 2f
+                    y = 100f; pressure = 0.5f; size = 0.1f
+                } }
+                val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action,
+                    count, properties, coords, 0, 0, 1f, 1f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0)
+                try { main { view.dispatchTouchEvent(event) } } finally { event.recycle() }
+                SystemClock.sleep(30)
+            }
+            touch(MotionEvent.ACTION_DOWN, 1f, 1)
+            touch(MotionEvent.ACTION_POINTER_DOWN or (1 shl MotionEvent.ACTION_POINTER_INDEX_SHIFT), 1f, 2)
+            touch(MotionEvent.ACTION_MOVE, 1.3f, 2)
+            touch(MotionEvent.ACTION_MOVE, 1.6f, 2)
+            touch(MotionEvent.ACTION_POINTER_UP or (1 shl MotionEvent.ACTION_POINTER_INDEX_SHIFT), 1.6f, 2)
+            touch(MotionEvent.ACTION_UP, 1.6f, 1)
+            val scale = main { view.pageAt(view.width / 2f, 100f)!!.first.scale }
+            assertTrue("Two-finger input must zoom", scale > view.width / 300f)
+            click("Bolígrafo"); await { view.penEnabled }
+            click("Página siguiente"); await { document.lastPage == 2 }
+            visible(counter(2, 3)); assertFalse(main { view.penEnabled })
+            assertEquals(scale, main { view.pageAt(view.width / 2f, 100f)!!.first.scale }, 0.001f)
+            click("Ocultar barra"); click("Página siguiente")
+            await { document.lastPage == 3 }; visible(counter(3, 3)); visible("Mostrar barra")
+            disabled("Página siguiente"); screenshot("arrows-last-hidden")
+            click("Página anterior"); await { document.lastPage == 2 }
+            click(counter(2, 3)); type("1"); click("Ir")
+            await { document.lastPage == 1 }; disabled("Página anterior")
+            click("Mostrar barra"); click("Buscar texto")
+            main { model.search.query("PDF") }
+            await { !model.search.state.busy && model.search.state.matches.size == 3 }
+            // Search may focus another page, so return to the first result explicitly.
+            main { view.goToPage(1) }; visible(counter(1, 3))
+            click("Página siguiente")
+            await { !model.search.state.open && document.lastPage == 2 }
+            assertTrue(main { document.pen.isDirty })
+            assertEquals(1, main { document.pen.strokes(0).size })
+            assertArrayEquals(original, source.readBytes())
+            screenshot("arrows-pending-ink")
+        } finally { main { model.closePdf(); activity.finish() }; source.delete() }
+    }
+
+    @Test fun singlePageDisablesBothArrows() {
+        val context = instrumentation.targetContext
+        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        val model = main { ViewModelProvider(activity)[AppViewModel::class.java] }
+        val source = fixture(1)
+        try {
+            await { !model.loading }; main { model.openPdf(Uri.fromFile(source)) }
+            await { reader(activity.window.decorView)?.isDocumentReady == true }
+            disabled("Página anterior"); disabled("Página siguiente")
+            click(counter(1, 1)); visible("Ir a la página"); click("Cancelar")
+            assertEquals(1, main { model.document!!.lastPage })
+        } finally { main { model.closePdf(); activity.finish() }; source.delete() }
+    }
+
+    @Test fun downloadsGuidanceOpensSystemFileAndFolderPickersWithoutAddingARoot() {
+        val context = instrumentation.targetContext
+        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
+        val model = main { ViewModelProvider(activity)[AppViewModel::class.java] }
+        try {
+            await { !model.loading }
+            val original = main { model.settings.roots }
+            for (action in listOf("Abrir PDF de Descargas", "Añadir subcarpeta")) {
+                instrumentation.uiAutomation.clearCache()
+                if (node("¿Cómo añadir Descargas?") == null) click("Mostrar carpetas")
+                click("¿Cómo añadir Descargas?")
+                visible("Descargas"); screenshot("downloads-help")
+                click(action)
+                val deadline = SystemClock.uptimeMillis() + 10000
+                while (SystemClock.uptimeMillis() < deadline &&
+                    !instrumentation.uiAutomation.rootInActiveWindow?.packageName.toString().endsWith("documentsui")) {
+                    SystemClock.sleep(50)
+                }
+                assertTrue("System picker must be open",
+                    instrumentation.uiAutomation.rootInActiveWindow?.packageName.toString().endsWith("documentsui"))
+                screenshot(if (action == "Añadir subcarpeta") "downloads-tree-picker" else "downloads-file-picker")
+                // Back first climbs the picker's initial folder, then dismisses it.
+                repeat(6) {
+                    instrumentation.uiAutomation.clearCache()
+                    if (instrumentation.uiAutomation.rootInActiveWindow?.packageName.toString().endsWith("documentsui")) {
+                        instrumentation.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+                        SystemClock.sleep(200)
+                    }
+                }
+                instrumentation.waitForIdleSync()
+                assertEquals(original, main { model.settings.roots })
+            }
+            if (context.resources.configuration.screenWidthDp < 800) {
+                instrumentation.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+                instrumentation.waitForIdleSync()
+            }
+            visible("Abrir PDF"); screenshot("open-pdf-label")
+        } finally { main { activity.finish() } }
+    }
+
     @Test fun shortFinalPageKeepsTheRequestedCounterUntilTheReaderScrolls() {
         val context = instrumentation.targetContext
         val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)

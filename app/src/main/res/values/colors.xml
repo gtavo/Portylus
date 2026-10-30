@@ -1,1 +1,5 @@
-<resources><color name="portylus_navy">#071A33</color></resources>
+<resources>
+    <color name="portylus_navy">#071A33</color>
+    <color name="portylus_surface">#F8F9FF</color>
+    <color name="portylus_accent">#315DA8</color>
+</resources>

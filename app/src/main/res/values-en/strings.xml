@@ -188,4 +188,17 @@
     <string name="page_jump_invalid">"Enter a number between 1 and %1$d."</string>
     <string name="go">"Go"</string>
     <string name="page_counter">"Page %1$d of %2$d. Go to page."</string>
+    <string name="appearance">Appearance</string>
+    <string name="appearance_choose">Change appearance</string>
+    <string name="language_choose">Change language</string>
+    <string name="appearance_system">Follow system</string>
+    <string name="appearance_light">Light</string>
+    <string name="appearance_dark">Dark</string>
+    <string name="previous_page">Previous page</string>
+    <string name="next_page">Next page</string>
+    <string name="downloads">Downloads</string>
+    <string name="downloads_help">How do I add Downloads?</string>
+    <string name="downloads_explanation">Android does not allow adding the entire Downloads folder. Create or choose a subfolder, such as Downloads/PDF, and add it to My folders. For PDFs already in Downloads, open each file using the file picker.</string>
+    <string name="add_downloads_subfolder">Add subfolder</string>
+    <string name="open_downloads_pdf">Open PDF from Downloads</string>
 </resources>

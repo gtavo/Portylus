@@ -2,6 +2,7 @@ package com.gtavoapps.portylus.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -13,11 +14,16 @@ import androidx.compose.ui.unit.dp
 
 /** Small native vectors; no icon-font or extra dependency. */
 @Composable fun ActionIcon(kind: String, enabled: Boolean = true, tint: Color? = null) {
-    val color = (tint ?: MaterialTheme.colorScheme.onSurface).copy(alpha = if (enabled) 1f else 0.35f)
-    Canvas(Modifier.size(22.dp)) {
+    val base = tint ?: LocalContentColor.current
+    val color = base.copy(alpha = if (enabled) base.alpha else 0.38f)
+    Canvas(Modifier.size(24.dp)) {
         val u = size.width / 24f
         val line = Stroke(1.8f * u, cap = StrokeCap.Round)
         when (kind) {
+            "check" -> {
+                val path = Path().apply { moveTo(5f*u,12f*u); lineTo(10f*u,17f*u); lineTo(19f*u,7f*u) }
+                drawPath(path, color, style = line)
+            }
             "undo", "redo" -> {
                 fun x(v: Float) = if (kind == "redo") 24f - v else v
                 val path = Path().apply {
@@ -110,11 +116,19 @@ import androidx.compose.ui.unit.dp
                 drawPath(path,color,style=line)
             }
             "open" -> {
+                // Open folder: separate rear tab and angled front, without a crossing arrow.
                 val path = Path().apply {
-                    moveTo(13f*u,3f*u);lineTo(5f*u,3f*u);lineTo(5f*u,21f*u);lineTo(19f*u,21f*u);lineTo(19f*u,12f*u)
-                    moveTo(13f*u,3f*u);lineTo(13f*u,9f*u);lineTo(19f*u,9f*u);lineTo(13f*u,3f*u)
-                    moveTo(10f*u,15f*u);lineTo(22f*u,3f*u);moveTo(16f*u,3f*u);lineTo(22f*u,3f*u);lineTo(22f*u,9f*u)
+                    moveTo(3f*u,19f*u);lineTo(3f*u,5f*u);lineTo(9f*u,5f*u)
+                    lineTo(12f*u,8f*u);lineTo(20f*u,8f*u);lineTo(20f*u,11f*u)
+                    moveTo(3f*u,19f*u);lineTo(6f*u,11f*u);lineTo(22f*u,11f*u)
+                    lineTo(19f*u,19f*u);close()
                 }
+                drawPath(path,color,style=line)
+            }
+            "left", "right" -> {
+                val a=if(kind=="left") 15f else 9f
+                val b=if(kind=="left") 9f else 15f
+                val path=Path().apply { moveTo(a*u,6f*u);lineTo(b*u,12f*u);lineTo(a*u,18f*u) }
                 drawPath(path,color,style=line)
             }
             "folder" -> {

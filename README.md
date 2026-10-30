@@ -8,6 +8,8 @@ Objetivo: **abrir, leer, anotar y guardar**. La especificación original está e
 ## Estado actual — lectura, anotación y guardado manual
 
 - Explorador SAF de carpetas y PDF, con permisos persistentes.
+- Mis carpetas → ¿Cómo añadir Descargas? explica la restricción de Android y permite elegir/crear una subcarpeta o abrir un PDF de Descargas. El selector se inicia en esa ubicación si el proveedor la admite; la raíz no se añade como carpeta autorizada.
+- Abrir PDF muestra una carpeta abierta y una etiqueta visible en la cabecera.
 - Explorador con árbol de carpetas añadidas a la izquierda y bookmarks debajo; sin pestañas ni grupos separados en el contenido.
 - Lista única: primero subcarpetas y después PDF, con tamaño y fecha/hora de modificación. Si el proveedor no entrega un dato, aparece una raya.
 - Entrar en una subcarpeta o bookmark despliega su ruta en el árbol y selecciona la ubicación actual.
@@ -16,16 +18,19 @@ Objetivo: **abrir, leer, anotar y guardar**. La especificación original está e
 - Panel izquierdo permanente en tablet (desde 800 dp); en pantallas estrechas se abre con Carpetas.
 - Apertura desde «Abrir con» mediante ACTION_VIEW, application/pdf y URI content:// o file://.
 - Última página por documento, persistente tras cerrar la aplicación; los nuevos comienzan en la primera.
-- Identidad Portylus, símbolo de documento/lápiz y diseño navy/azul/cian coherente con Docenda y Positio.
+- Identidad Portylus y símbolo de documento/lápiz, con tema Material 3 en azul y gris frío.
+- Ajustes → Apariencia: Seguir el sistema, Claro u Oscuro, con preferencia local persistente.
+- El explorador conserva su estructura tipo Windows 11: árbol, bookmarks, ruta y lista de detalles.
 - Barra nativa de navegación con contraste protegido.
 - Los marcadores existentes se conservan en Bookmarks, sin migración destructiva.
 - Última carpeta, orden por nombre/fecha y regreso desde el documento.
 - Lectura integrada con desplazamiento vertical, zoom y número de página. El contador inferior es pulsable: abre Ir a la página, con teclado numérico, número actual seleccionado y validación entre 1 y el total. Funciona también con la barra oculta y conserva el zoom y la tinta pendiente.
+- El contador inferior incluye flechas izquierda/derecha para retroceder o avanzar una página, también con la barra oculta. Se desactivan en los extremos y durante el guardado; el centro conserva Ir a la página. Los cambios de página conservan el zoom y la tinta completada y vuelven a lectura.
 - Buscar texto con la lupa del lector o Más opciones → Buscar texto. Busca fragmentos por defecto; Palabras completas limita la coincidencia a palabras independientes. Sin distinción de mayúsculas, con soporte Unicode, acentos, ligaduras y frases.
 - Coincidencias temporales en amarillo y resultado activo en naranja, contador y anterior/siguiente con recorrido circular por todas las páginas. La búsqueda sustituye temporalmente la barra de anotación, se cancela al cambiar el texto y conserva sus resultados al girar.
 - Ocultar barra tiene icono de panel y etiqueta visible; al ocultarla aparece el botón con texto Mostrar barra. Los trazos pendientes se conservan.
 - Barra del lector adaptativa: en móvil, una fila compacta para nombre y acciones, y otra para las seis herramientas principales sin desplazamiento horizontal. En tablet mantiene una sola fila.
-- Iconos con estado activo en cian, nombres accesibles y ayuda al mantener pulsado. El título completo también se puede consultar manteniendo pulsado.
+- Iconos con indicador tonal azul para el estado activo, nombres accesibles y ayuda al mantener pulsado. El título completo también se puede consultar manteniendo pulsado.
 - Las herramientas y acciones mantienen objetivos táctiles de 48 dp. En móvil, la muestra de color abre los estilos de la herramienta activa; con Goma activa muestra sus opciones. Más opciones conserva acceso a ambos editores de estilos.
 - Ocultar y Mostrar barra conservan los trazos y vuelven a lectura segura.
 - La página mantiene su imagen disponible durante desplazamiento/zoom con dos dedos mientras se prepara otra resolución; ver [corrección de gestos](docs/VALIDACION_GESTOS.md).
@@ -56,6 +61,14 @@ Se conservan [las pruebas anteriores del bolígrafo](docs/VALIDACION_LAPIZ.md).
 La [validación inicial del motor](docs/VALIDACION.md) se conserva como evidencia de la base anterior.
 
 ## Cambios locales de movilidad e idiomas (24/10/2026)
+
+La adaptación visual local del 30/10/2026 añade los temas claro/oscuro y las barras
+del sistema coordinadas con la elección de la app. Cambiar de apariencia recompone
+la interfaz sin sustituir el lector nativo ni escribir el PDF. Se conservan los
+colores reales de páginas, tinta, fluorescentes y resultados de búsqueda. Los
+selectores de color usan áreas táctiles de 48 dp y se redistribuyen en móviles.
+Ver [diseño y validación local](docs/VALIDACION_DISENO_MATERIAL3.md).
+Esta modificación local no cambia la versión ni publica una entrega.
 
 - Interfaz en español, inglés y francés mediante recursos Android incluidos sin conexión.
 - Ajustes desde el explorador y desde Más opciones del lector: idioma por aplicación,
@@ -112,18 +125,22 @@ con la contraseña protegida por DPAPI del usuario de Windows. Consulta [Firma y
 
 ## Versionado y GitHub
 
-Versión preparada: **v0.1.4**, código Android **18**, paquete **`com.gtavoapps.portylus`**.
-Entrega y comprobaciones: [VALIDACION_v0.1.4.md](docs/VALIDACION_v0.1.4.md).
-`version.properties` fija la versión y el código Android para las compilaciones locales y CI,
-sin sufijos de desarrollo ni etiquetas de funciones. Los commits y las recompilaciones no avanzan la versión.
+Versión del código: **26.10.30**, código Android **19**, paquete **`com.gtavoapps.portylus`**.
+Incluye el diseño Material 3 y las mejoras de apertura, ayuda de Descargas y
+navegación mediante flechas. Comprobaciones funcionales:
+[rediseño](docs/VALIDACION_DISENO_MATERIAL3.md) y
+[navegación](docs/VALIDACION_NAVEGACION_2026-10-30.md).
 
-La nueva entrega preparada usa `versionName=0.1.4`, `versionCode=18`. Todas las entregas anteriores se conservan.
-A partir de esa entrega, el último bloque recorre de 0 a 9 y después pasa al siguiente:
-`0.1.0 → 0.1.1 → … → 0.1.9 → 0.2.0`. No se continuará con `0.0.14`.
-El código Android siempre aumenta una unidad por entrega; las recompilaciones no lo avanzan.
-Las entregas anteriores conservan su numeración, archivos, evidencias y hashes históricos.
-Desde el cambio de nombre, las APK se entregan como `Portylus-v0.1.0.apk`, etc.
-Los documentos de validación anteriores conservan sus nombres y hashes históricos.
+`version.properties` fija la versión y el código Android para las compilaciones locales y CI.
+Se aplica [VERSIONADO.md](VERSIONADO.md): fecha Europe/Madrid `AA.MM.DD` y
+sufijos `_2`, `_3`, etc. para los siguientes commits del mismo día en este proyecto.
+Los commits y versiones anteriores conservan su identidad y sus artefactos.
+
+Los APK locales de prueba del 30/10 documentados en las validaciones conservan
+0.1.4 / 18, la versión con la que se generaron. Este commit de fuentes no publica
+una nueva entrega en Google Play ni en GitHub Releases. El enlace de fuentes
+integrado sigue correspondiendo a la entrega pública 0.1.4 y deberá actualizarse
+junto con las fuentes completas al preparar la siguiente distribución.
 
 Repositorio público: [gtavo/Portylus](https://github.com/gtavo/Portylus).
 Fuentes completas de v0.1.1 preparadas en `artifacts/Portylus-v0.1.1-source.zip`.

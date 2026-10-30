@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -76,7 +77,8 @@ fun InkStyleDialog(kind: AnnotationKind, presets: ToolPresets, saving: Boolean,
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     repeat(3) { index ->
-                        FilterChip(selected = slot == index, enabled = !saving,
+                        FilterChip(selected = slot == index, enabled = !saving, modifier = Modifier.heightIn(min = 48.dp),
+                            leadingIcon = if (slot == index) { { ActionIcon("check", tint = androidx.compose.material3.LocalContentColor.current) } } else null,
                             onClick = { slot = index }, label = { Text(strings.getString(R.string.style_number, index + 1)) })
                     }
                 }
@@ -91,11 +93,11 @@ fun InkStyleDialog(kind: AnnotationKind, presets: ToolPresets, saving: Boolean,
                     width = if (pen) round(it * 2) / 2 else round(it)
                 }, valueRange = range, steps = if (pen) 14 else 27, enabled = !saving,
                     modifier = Modifier.semantics { contentDescription = strings.getString(R.string.width_label) })
-                palette.chunked(5).forEach { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        row.forEach { (name, value) ->
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        palette.forEach { (name, value) ->
                             val isSelected = color == value.toInt()
-                            Box(Modifier.size(44.dp)
+                            Box(Modifier.size(48.dp)
                                 .background(Color(value), CircleShape)
                                 .border(if (isSelected) 3.dp else 1.dp,
                                     if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
@@ -104,10 +106,9 @@ fun InkStyleDialog(kind: AnnotationKind, presets: ToolPresets, saving: Boolean,
                                     hex = "#%06X".format(Locale.ROOT, value and 0xffffff)
                                 }.semantics { contentDescription = strings.getString(R.string.color_name, strings.getString(name)); selected = isSelected },
                                 contentAlignment = Alignment.Center) {
-                                if (isSelected) Text("✓", color = if (name in listOf(R.string.white, R.string.yellow, R.string.cyan)) Color.Black else Color.White)
+                                if (isSelected) ActionIcon("check", tint = if (Color(value).luminance() > 0.179f) Color.Black else Color.White)
                             }
                         }
-                    }
                 }
                 OutlinedTextField(value = hex, onValueChange = { hex = it.take(7).uppercase(Locale.ROOT) },
                     label = { Text(strings.getString(R.string.color_hex)) }, singleLine = true, isError = color == null,

@@ -14,8 +14,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -30,10 +33,16 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Keep the familiar Windows-style folder/bookmark accent within the shared light/dark palette.
+private val ColorScheme.explorerAccent: Color
+    get() = if (surface.luminance() > 0.5f) Color(0xFF885200) else Color(0xFFFFC857)
+
 /** One folder tree, its bookmarks and one contents list, also on narrow screens. */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun BrowserScreen(model: AppViewModel, authorize: () -> Unit) {
+@Composable fun BrowserScreen(model: AppViewModel, authorize: () -> Unit,
+    openDownloads: () -> Unit, addDownloadsFolder: () -> Unit) {
     val strings = androidx.compose.ui.platform.LocalContext.current
+    var downloadsHelp by rememberSaveable { mutableStateOf(false) }
     var editing by remember { mutableStateOf(false) }
     var removeRoot by remember { mutableStateOf<FolderLocation?>(null) }
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -47,7 +56,7 @@ import java.util.Locale
         BackHandler(enabled = !wide && drawer.isOpen) { scope.launch { drawer.close() } }
         val navigation: @Composable () -> Unit = {
             FolderNavigation(model, editing, onEdit = { editing = !editing }, authorize,
-                choose = choose, removeRoot = { removeRoot = it })
+                choose = choose, removeRoot = { removeRoot = it }, downloadsHelp = { downloadsHelp = true })
         }
         if (wide) Row(Modifier.fillMaxSize()) {
             Box(Modifier.width(280.dp).fillMaxHeight()) { navigation() }
@@ -63,6 +72,21 @@ import java.util.Locale
             Contents(model, Modifier.fillMaxSize()) { scope.launch { drawer.open() } }
         }
     }
+    if (downloadsHelp) AlertDialog(
+        onDismissRequest = { downloadsHelp = false },
+        title = { Text(strings.getString(R.string.downloads)) },
+        text = { Text(strings.getString(R.string.downloads_explanation)) },
+        confirmButton = {
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+                TextButton(onClick = { downloadsHelp = false; addDownloadsFolder() }) {
+                    Text(strings.getString(R.string.add_downloads_subfolder))
+                }
+                TextButton(onClick = { downloadsHelp = false; openDownloads() }) {
+                    Text(strings.getString(R.string.open_downloads_pdf))
+                }
+                TextButton(onClick = { downloadsHelp = false }) { Text(strings.getString(R.string.cancel)) }
+            }
+        })
     removeRoot?.let { root ->
         AlertDialog(onDismissRequest = { removeRoot = null },
             title = { Text(strings.getString(R.string.remove_root_title, root.current.name)) },
@@ -75,7 +99,8 @@ import java.util.Locale
 private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootIndex: Int? = null)
 
 @Composable private fun FolderNavigation(model: AppViewModel, editing: Boolean, onEdit: () -> Unit,
-    authorize: () -> Unit, choose: (FolderLocation) -> Unit, removeRoot: (FolderLocation) -> Unit) {
+    authorize: () -> Unit, choose: (FolderLocation) -> Unit, removeRoot: (FolderLocation) -> Unit,
+    downloadsHelp: () -> Unit) {
     val strings = androidx.compose.ui.platform.LocalContext.current
     val rows = buildList {
         fun branch(folder: FolderLocation, depth: Int, rootIndex: Int? = null) {
@@ -143,10 +168,14 @@ private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootI
                 TextButton(enabled = !model.loading && !model.opening, onClick = authorize,
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) { Text(strings.getString(R.string.add_folder)) }
             }
+            item(key = "downloads-help") {
+                TextButton(enabled = !model.loading && !model.opening, onClick = downloadsHelp,
+                    modifier = Modifier.fillMaxWidth()) { Text(strings.getString(R.string.downloads_help)) }
+            }
             item(key = "bookmarks") {
                 HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant)
                 Row(Modifier.padding(start = 12.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    ActionIcon("star", tint = MaterialTheme.colorScheme.tertiary)
+                    ActionIcon("star", tint = MaterialTheme.colorScheme.explorerAccent)
                     Text(strings.getString(R.string.bookmarks), Modifier.padding(start = 10.dp).semantics { heading() },
                         style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 }
@@ -182,7 +211,7 @@ private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootI
         Row(Modifier.weight(1f).heightIn(min = 48.dp).clickable(onClick = onClick)
             .semantics { contentDescription = description }.padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            ActionIcon("folder", tint = MaterialTheme.colorScheme.tertiary)
+            ActionIcon("folder", tint = MaterialTheme.colorScheme.explorerAccent)
             Column(Modifier.weight(1f).padding(start = 8.dp, end = 4.dp)) {
                 Text(folder.current.name, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium,
@@ -231,7 +260,7 @@ private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootI
                 val favorite = model.settings.bookmarks.any { it.current.uri == location.current.uri }
                 IconButton(onClick = model::toggleBookmark, modifier = Modifier.semantics {
                     contentDescription = if (favorite) strings.getString(R.string.remove_bookmark) else strings.getString(R.string.add_bookmark)
-                }) { ActionIcon(if (favorite) "starFilled" else "star", tint = MaterialTheme.colorScheme.tertiary) }
+                }) { ActionIcon(if (favorite) "starFilled" else "star", tint = MaterialTheme.colorScheme.explorerAccent) }
             } else Text(strings.getString(R.string.browser), Modifier.weight(1f).padding(start = 8.dp),
                 style = MaterialTheme.typography.titleMedium)
         }
@@ -258,7 +287,7 @@ private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootI
             model.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             location == null -> Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                ActionIcon("folder", tint = MaterialTheme.colorScheme.tertiary)
+                ActionIcon("folder", tint = MaterialTheme.colorScheme.explorerAccent)
                 Text(strings.getString(R.string.choose_folder), Modifier.padding(top = 14.dp), style = MaterialTheme.typography.titleMedium)
                 Text(if (showFolders == null) strings.getString(R.string.folders_left)
                     else strings.getString(R.string.folders_drawer), Modifier.padding(top = 8.dp),
@@ -328,7 +357,7 @@ private data class TreeRow(val folder: FolderLocation, val depth: Int, val rootI
     Row(Modifier.fillMaxWidth().heightIn(min = 58.dp).clickable(enabled = enabled, onClick = onClick)
         .semantics { contentDescription = (if (entry.isDirectory) strings.getString(R.string.open_folder_prefix) else strings.getString(R.string.open_pdf_prefix)) + entry.name }
         .padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (entry.isDirectory) ActionIcon("folder", tint = MaterialTheme.colorScheme.tertiary)
+        if (entry.isDirectory) ActionIcon("folder", tint = MaterialTheme.colorScheme.explorerAccent)
         else Box(Modifier.size(28.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
             RoundedCornerShape(5.dp)), contentAlignment = Alignment.Center) {
             Text("PDF", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
